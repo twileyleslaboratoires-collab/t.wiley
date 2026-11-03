@@ -76,14 +76,16 @@ export async function POST(request: NextRequest) {
     // 3. Succès : Réinitialisation du limiteur et création du token
     resetLoginRateLimit(rateLimitKey);
 
+    const adminEmail = email || process.env.ADMIN_EMAIL || 'admin@laboratoires-twiley.ci';
+
     logSecurityEvent({
       action: 'ADMIN_LOGIN_SUCCESS',
       status: 'SUCCESS',
-      actor: email || 'admin@laboratoires-twiley.ci',
+      actor: adminEmail,
       ip,
     });
 
-    const token = createSessionToken(email || 'admin@laboratoires-twiley.ci');
+    const token = createSessionToken(adminEmail);
     const response = NextResponse.json({ success: true, message: 'Connexion réussie.' });
 
     response.cookies.set(COOKIE_NAME, token, {

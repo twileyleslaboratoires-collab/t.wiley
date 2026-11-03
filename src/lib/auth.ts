@@ -79,18 +79,25 @@ export function verifySessionToken(token: string | undefined): boolean {
  * Récupère les identifiants administrateur actuels
  */
 export function getAdminCredentials() {
+  const envEmail = process.env.ADMIN_EMAIL?.trim();
+  const envPassword = process.env.ADMIN_PASSWORD?.trim();
+
   try {
     const db = getDatabase();
-    return (
-      db.adminCredentials || {
-        email: DEFAULT_ADMIN_EMAIL,
-        password: DEFAULT_ADMIN_PASSWORD,
-      }
-    );
+    const creds = db.adminCredentials || {
+      email: envEmail || DEFAULT_ADMIN_EMAIL,
+      password: envPassword || DEFAULT_ADMIN_PASSWORD,
+    };
+
+    if (envEmail && creds.email !== envEmail.toLowerCase()) {
+      creds.email = envEmail.toLowerCase();
+    }
+
+    return creds;
   } catch {
     return {
-      email: DEFAULT_ADMIN_EMAIL,
-      password: DEFAULT_ADMIN_PASSWORD,
+      email: envEmail || DEFAULT_ADMIN_EMAIL,
+      password: envPassword || DEFAULT_ADMIN_PASSWORD,
     };
   }
 }
