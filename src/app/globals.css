@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #f8fafc;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes liveBackgroundDrift {
+  0% {
+    background-position: 0px 50%;
+  }
+
+  50% {
+    background-position: 70px 50%;
+  }
+
+  100% {
+    background-position: 0px 50%;
+  }
+}
+
+@keyframes lightPulseGlow {
+
+  0%,
+  100% {
+    opacity: 0.92;
+    filter: brightness(1.02) contrast(1.05);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.18) contrast(1.12);
+  }
+}
+
+.animate-live-bg {
+  animation: liveBackgroundDrift 30s ease-in-out infinite, lightPulseGlow 6s ease-in-out infinite;
+}
+
+@keyframes flagWave {
+  0%, 100% {
+    transform: perspective(350px) rotateY(0deg) translateY(0) scale(1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  }
+  25% {
+    transform: perspective(350px) rotateY(14deg) skewY(2deg) translateY(-1.5px) scale(1.06);
+    filter: drop-shadow(3px 4px 7px rgba(0, 0, 0, 0.55));
+  }
+  50% {
+    transform: perspective(350px) rotateY(-10deg) skewY(-1.5deg) translateY(0) scale(1.02);
+    filter: drop-shadow(-2px 3px 5px rgba(0, 0, 0, 0.45));
+  }
+  75% {
+    transform: perspective(350px) rotateY(8deg) skewY(1deg) translateY(-1px) scale(1.05);
+    filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.5));
+  }
+}
+
+.animate-flag-wave {
+  display: inline-block;
+  transform-origin: left center;
+  animation: flagWave 3.2s ease-in-out infinite;
+}

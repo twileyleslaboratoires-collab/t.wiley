@@ -1,0 +1,959 @@
+{
+  "products": [
+    {
+      "id": "prod-1",
+      "slug": "detergent-professionnel-multi-surfaces-5l",
+      "name": "Détergent Professionnel Multi-Surfaces 5L",
+      "shortDescription": "Formule concentrée dégraissante et assainissante pour sols carrelés, thermoplastiques et surfaces lavables.",
+      "fullDescription": "Le Détergent Professionnel Multi-Surfaces 5L est spécialement élaboré pour répondre aux exigences élevées des établissements recevant du public, des bureaux et des résidences privées. Sa formule concentrée dissout rapidement les souillures grasses, les traces de pas et la poussière sans laisser de film collant ni altérer la brillance des revêtements. Ne nécessite aucun rinçage aux dosages habituels et laisse un parfum frais rémanent de pin sylvestre.",
+      "categoryId": "cat-detergents",
+      "categoryName": "Détergents",
+      "price": 5000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres avec bouchon doseur",
+      "mainImage": "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 120,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD recyclable"
+        },
+        {
+          "label": "Aspect",
+          "value": "Liquide fluide limpide vert"
+        },
+        {
+          "label": "Parfum",
+          "value": "Fraîcheur Pin / Forêt"
+        },
+        {
+          "label": "Dilution conseillée",
+          "value": "1% à 2% dans l’eau tiède"
+        },
+        {
+          "label": "Surfaces compatibles",
+          "value": "Carrelages, béton ciré, thermoplastiques, inox"
+        }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants. Conserver dans un endroit sec à l’abri du soleil direct.",
+      "createdAt": "2026-10-30T20:09:55.408Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-2",
+      "slug": "degraissant-puissant-ateliers-industriels-20l",
+      "name": "Dégraissant Lourd Haute Performance 20L",
+      "shortDescription": "Dégraissant alcalin industriel formulé pour l’élimination des huiles minérales, graisses brûlées et résidus d’ateliers.",
+      "fullDescription": "Conçu pour les usines, garages mécaniques, hangars de stockage et cuisines industrielles, ce dégraissant lourd élimine en profondeur les dépôts hydrocarburés les plus tenaces. Compatible avec le nettoyage manuel, au nettoyeur haute pression ou en autolaveuse industrielle. Sa formule à pénétration rapide émulsionne instantanément les graisses sans attaquer les structures métalliques traitées.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 28500,
+      "currency": "FCFA",
+      "packaging": "Fût de 20 Litres renforcé avec bonde",
+      "mainImage": "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg",
+      "images": [
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 45,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Conditionnement",
+          "value": "Fût industriel 20L"
+        },
+        {
+          "label": "Usage",
+          "value": "Industrie, mécanique, sols d’ateliers, pièces mécaniques"
+        },
+        {
+          "label": "Application",
+          "value": "Pulvérisation, trempage, canon à mousse ou haute pression"
+        },
+        {
+          "label": "Rinçage",
+          "value": "Rinçage obligatoire à l’eau claire"
+        }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-11-03T09:34:20.521Z",
+      "sku": "",
+      "originalPrice": 0,
+      "videoUrl": "/uploads/1793694807793-AQN_wNeZ9pUQpl0fgu0Dbko3o52JrYrzAPNHNFK2stCEpFq7MbY2kCb1NapDUqJ1RO95CAxYXM8RwnNg4Ze80LCuJVRw1awIcsSXcAtukjTvzA__1_.mp4",
+      "order": 1,
+      "videos": [
+        "/uploads/1793694807793-AQN_wNeZ9pUQpl0fgu0Dbko3o52JrYrzAPNHNFK2stCEpFq7MbY2kCb1NapDUqJ1RO95CAxYXM8RwnNg4Ze80LCuJVRw1awIcsSXcAtukjTvzA__1_.mp4",
+        "/uploads/1793698456884-0-Generated_Video_October_30__2026_-_8_34AM.mp4"
+      ]
+    },
+    {
+      "id": "prod-3",
+      "slug": "savon-liquide-doux-mains-aloe-vera-5l",
+      "name": "Savon Liquide Doux Mains & Corps 5L",
+      "shortDescription": "Lotion lavante moussante hypoallergénique enrichie aux extraits adoucissants pour sanitaires collectifs et usage familial.",
+      "fullDescription": "Formulation soyeuse et équilibrée à pH neutre pour la peau, garantissant un lavage fréquent des mains sans risque de dessèchement. Idéal pour recharger les distributeurs muraux des bureaux, hôtels, restaurants, cliniques et résidences. Offre une mousse onctueuse, douce et délicatement parfumée aux notes florales légères.",
+      "categoryId": "cat-cosmetiques",
+      "categoryName": "Cosmétiques & Soins",
+      "price": 6500,
+      "currency": "FCFA",
+      "packaging": "Bidon économique de 5 Litres",
+      "mainImage": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1608248597359-4081c7f1a302?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 80,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Format",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Tolérance",
+          "value": "Testé sous contrôle dermatologique, pH neutre 5.5"
+        },
+        {
+          "label": "Texture",
+          "value": "Gel nacré onctueux"
+        },
+        {
+          "label": "Compatibilité",
+          "value": "Tous types de distributeurs de savon liquide"
+        }
+      ],
+      "additionalInfo": "Recommandé pour les écoles, hôtels, restaurants et sièges d’entreprises.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-4",
+      "slug": "nettoyant-vitres-et-surfaces-modernes-750ml",
+      "name": "Nettoyant Vitres & Glaces Éclat 750ml (Carton de 12)",
+      "shortDescription": "Formule anti-traces à évaporation rapide pour baies vitrées, miroirs, écrans et comptoirs en verre.",
+      "fullDescription": "Le spray Nettoyant Vitres & Glaces dissout instantanément les empreintes de doigts, le film gras et la poussière urbaine sur toutes les parois transparentes. Grâce à ses agents hydrofuges de pointe, il retarde le ré-encrassement et évite les buées sur les vitrages intérieurs et extérieurs. Finition éclatante sans aucune trace ni auréole.",
+      "categoryId": "cat-entretien",
+      "categoryName": "Produits d'entretien",
+      "price": 14000,
+      "currency": "FCFA",
+      "packaging": "Carton de 12 flacons pulvérisateurs de 750 ml",
+      "mainImage": "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        {
+          "label": "Conditionnement",
+          "value": "Carton 12 x 750ml avec pistolets réutilisables"
+        },
+        {
+          "label": "Temps de séchage",
+          "value": "Ultra-rapide, sans essuyage prolongé"
+        },
+        {
+          "label": "Action",
+          "value": "Dégraissant et antistatique"
+        }
+      ],
+      "additionalInfo": "Pulvériser à 20 cm de la surface puis essuyer avec une microfibre propre.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-5",
+      "slug": "liquide-vaisselle-super-concentre-citron-5l",
+      "name": "Liquide Vaisselle Concentré Dégraissant Citron 5L",
+      "shortDescription": "Ultra-dégraissant pour vaisselle manuelle, casseroles et batteries de cuisine professionnelles.",
+      "fullDescription": "Une efficacité remarquable sur les corps gras cuits, sauces épicées et résidus tenaces. Quelques gouttes suffisent pour créer une mousse abondante et stable, active même en eau tiède ou froide. Son parfum vivifiant au zeste de citron neutralise les odeurs résiduelles de poissons et d’oignons.",
+      "categoryId": "cat-domestique",
+      "categoryName": "Nettoyage domestique",
+      "price": 4500,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres",
+      "mainImage": "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 150,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Formule",
+          "value": "Hyper-concentrée, agents tensioactifs d’origine végétale"
+        },
+        {
+          "label": "Dosage",
+          "value": "1 cuillère à café pour 5L d’eau de lavage"
+        },
+        {
+          "label": "Rinçage",
+          "value": "Aisé, brillance impeccable"
+        }
+      ],
+      "additionalInfo": "Formule douce pour les mains grâce à ses agents protecteurs d’épiderme.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-6",
+      "slug": "lessive-liquide-professionnelle-active-10l",
+      "name": "Lessive Liquide Tous Textiles Pro 10L",
+      "shortDescription": "Lessive complète haute performance pour blanc et couleurs, active dès 30°C.",
+      "fullDescription": "Développée pour les blanchisseries d’hôtels, cliniques et grands ménages, cette lessive liquide pénètre au cœur des fibres pour désincruster les taches protéiques, grasses et enzymatiques. Préserve l’éclat des couleurs foncées et redonne de l’éclat au linge blanc grâce à ses azurants optiques de qualité professionnelle.",
+      "categoryId": "cat-detergents",
+      "categoryName": "Détergents",
+      "price": 11000,
+      "currency": "FCFA",
+      "packaging": "Bidon rigide de 10 Litres avec poignée ergonomique",
+      "mainImage": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 90,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        {
+          "label": "Volume",
+          "value": "10 Litres (environ 150 lavages)"
+        },
+        {
+          "label": "Efficacité",
+          "value": "Dès 30°C et jusqu’à 90°C"
+        },
+        {
+          "label": "Type de linge",
+          "value": "Coton, synthétique, fibres mélangées"
+        }
+      ],
+      "additionalInfo": "Sans phosphates agressifs. Compatible avec les machines automatiques et le lavage à la main.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-7",
+      "slug": "gel-hydroalcoolique-professionnel-5l",
+      "name": "Gel Désinfectant Hydroalcoolique Pro 5L",
+      "shortDescription": "Solution antiseptique conforme pour la désinfection immédiate des mains par friction.",
+      "fullDescription": "Élaboré selon les directives de référence avec plus de 70% d’alcool végétal purifié, ce gel garantit une action rapide et efficace pour le personnel soignant, les commerces et les visiteurs. Contient des agents glycérinés qui protègent la barrière cutanée contre l’irritation.",
+      "categoryId": "cat-cosmetiques",
+      "categoryName": "Cosmétiques & Soins",
+      "price": 9500,
+      "currency": "FCFA",
+      "packaging": "Bidon recharge de 5 Litres",
+      "mainImage": "https://images.unsplash.com/photo-1584744982491-665216d95f8b?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1584744982491-665216d95f8b?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 70,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        {
+          "label": "Composition",
+          "value": "Alcool éthylique > 70%, glycérine végétale hydratante"
+        },
+        {
+          "label": "Usage",
+          "value": "Friction des mains sans eau pendant 30 secondes"
+        },
+        {
+          "label": "Séchage",
+          "value": "Instantané sans résidu collant"
+        }
+      ],
+      "additionalInfo": "Recharge économique pour distributeurs manuels ou automatiques sans contact.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-8",
+      "slug": "desodorisant-ambiance-fleur-de-coton-carton",
+      "name": "Désodorisant D’Ambiance Haute Rémanence (Carton de 12)",
+      "shortDescription": "Aérosols diffuseurs neutralisateurs d’odeurs longue durée pour espaces d’accueil et bureaux.",
+      "fullDescription": "Neutralise instantanément les odeurs de renfermé, d’humidité et de tabac tout en diffusant une fragrance subtile et apaisante de fleur de coton. Doté d’un diffuseur haute pression à micronisation fine qui reste en suspension dans l’air sans retomber sur le mobilier.",
+      "categoryId": "cat-domestique",
+      "categoryName": "Nettoyage domestique",
+      "price": 13500,
+      "currency": "FCFA",
+      "packaging": "Carton de 12 aérosols de 400 ml",
+      "mainImage": "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=800&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?auto=format&fit=crop&w=800&q=80"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 50,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        {
+          "label": "Volume unitaire",
+          "value": "400 ml"
+        },
+        {
+          "label": "Parfum",
+          "value": "Fleur de Coton / Brise Marine"
+        },
+        {
+          "label": "Durée d’action",
+          "value": "Plusieurs heures de fraîcheur continue"
+        }
+      ],
+      "additionalInfo": "Pulvériser vers le haut de la pièce en balayage.",
+      "createdAt": "2026-10-30T20:09:55.410Z",
+      "updatedAt": "2026-10-30T20:09:55.410Z"
+    },
+    {
+      "id": "prod-9",
+      "slug": "decapant-industriel-puissant-sols-5l",
+      "name": "Décapant Industriel Sols & Dépôts Gras 5L",
+      "shortDescription": "Décapant concentré pour l'élimination des encrassements tenaces, cires usées et résidus industriels.",
+      "fullDescription": "Spécialement formulé pour les ateliers industriels, entrepôts et surfaces fortement sollicitées. Action désincrustante rapide et puissante sans détérioration des sols traités.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 14500,
+      "currency": "FCFA",
+      "packaging": "Bidon renforcé de 5 Litres",
+      "mainImage": "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+      "images": [
+        "/uploads/1793694770734-WhatsApp_Image_2026-11-02_at_18.08.31.jpeg",
+        "/uploads/1793694723893-WhatsApp_Image_2026-10-31_at_10.50.27.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 60,
+      "isPublished": true,
+      "isFeatured": true,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
+        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    },
+    {
+      "id": "prod-10",
+      "slug": "solvant-degraissant-mecanique-moteurs-5l",
+      "name": "Solvant Dégraissant Mécanique & Moteurs 5L",
+      "shortDescription": "Solvant puissant pour le dégraissage rapide des pièces mécaniques, chaînes et moteurs d’engins.",
+      "fullDescription": "Élimine sans effort les graisses épaisses, cambouis, goudrons et dépôts calaminés. Sèche rapidement et sans résidu gras.",
+      "categoryId": "cat-industriel",
+      "categoryName": "Produits industriels",
+      "price": 16000,
+      "currency": "FCFA",
+      "packaging": "Bidon de 5 Litres sécurisé",
+      "mainImage": "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg",
+      "images": [
+        "/uploads/1793694778200-WhatsApp_Image_2026-11-02_at_18.06.31.jpeg"
+      ],
+      "availability": "in_stock",
+      "stockQuantity": 40,
+      "isPublished": true,
+      "isFeatured": false,
+      "characteristics": [
+        { "label": "Conditionnement", "value": "Bidon 5L" },
+        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+      ],
+      "additionalInfo": "Tenir hors de portée des enfants.",
+      "createdAt": "2026-11-03T11:50:00.000Z",
+      "updatedAt": "2026-11-03T11:50:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-entretien",
+      "slug": "produits-dentretien",
+      "name": "Produits d'entretien",
+      "description": "Solutions hautement performantes pour l'entretien régulier des sols, carrelages, vitres et surfaces modernes.",
+      "image": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
+      "order": 1
+    },
+    {
+      "id": "cat-cosmetiques",
+      "slug": "cosmetiques",
+      "name": "Cosmétiques & Soins",
+      "description": "Gammes de savons liquides, gels lavants pour les mains, shampoings et lotions hydratantes pour un usage quotidien.",
+      "image": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80",
+      "order": 2
+    },
+    {
+      "id": "cat-detergents",
+      "slug": "detergents",
+      "name": "Détergents",
+      "description": "Détergents polyvalents, lessives liquides concentrées et poudres actives détachantes pour professionnels et particuliers.",
+      "image": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=800&q=80",
+      "order": 3
+    },
+    {
+      "id": "cat-industriel",
+      "slug": "produits-industriels",
+      "name": "Produits industriels",
+      "description": "Dégraissants puissants, solvants sécurisés, nettoyants haute pression et décapants pour ateliers, usines et chantiers.",
+      "image": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+      "order": 4
+    },
+    {
+      "id": "cat-domestique",
+      "slug": "nettoyage-domestique",
+      "name": "Nettoyage domestique",
+      "description": "Liquides vaisselle concentrés, gels détartrants WC, désodorisants longue durée et nettoyants cuisine.",
+      "image": "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80",
+      "order": 5
+    }
+  ],
+  "partners": [
+    {
+      "id": "part-1",
+      "name": "Laboratoires ChimEco",
+      "logo": "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=300&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=300&q=80"
+      ],
+      "description": "Partenaire fabricant spécialisé dans les tensioactifs éco-conçus et la formulation de détergents techniques.",
+      "websiteUrl": "https://example.com"
+    },
+    {
+      "id": "part-2",
+      "name": "Trans-Logistics Express",
+      "logo": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=300&q=80"
+      ],
+      "description": "Réseau partenaire assurant l’acheminement sécurisé de vos commandes volumineuses et fûts industriels.",
+      "websiteUrl": "https://example.com"
+    },
+    {
+      "id": "part-3",
+      "name": "Hygiène Pro Packaging",
+      "logo": "https://images.unsplash.com/photo-1542744094-24638eff58bb?auto=format&fit=crop&w=300&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1542744094-24638eff58bb?auto=format&fit=crop&w=300&q=80"
+      ],
+      "description": "Fournisseur agréé de contenants PEHD sécurisés et systèmes de dosage précis.",
+      "websiteUrl": "https://example.com"
+    }
+  ],
+  "aboutSections": [
+    {
+      "id": "sec-expertise",
+      "title": "Notre Savoir-Faire Industriel & Cosmétique",
+      "badge": "Expertise & Rigueur",
+      "description": "Une formulation de pointe adaptée aux normes strictes de l’hygiène hospitalière et industrielle.",
+      "content": "Les Laboratoires T. Wiley développent et conçoivent des solutions adaptées aux professionnels de santé, aux entreprises industrielles et aux ménages. Chaque formule est soumise à des contrôles qualité rigoureux avant conditionnement.",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+      "order": 1,
+      "isPublished": true,
+      "createdAt": "2026-10-31T13:04:56.081Z",
+      "updatedAt": "2026-10-31T13:04:56.081Z"
+    },
+    {
+      "id": "sec-engagement",
+      "title": "Notre Engagement pour la Santé & l’Environnement",
+      "badge": "Qualité Certifiée",
+      "description": "Des composants sélectionnés avec rigueur pour une efficacité maximale et une sécurité sans compromis.",
+      "content": "Nous privilégions des tensioactifs à haute biodégradabilité et des agents désinfectants conformes aux exigences sanitaires en vigueur en Côte d’Ivoire et à l’international.",
+      "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+      "order": 2,
+      "isPublished": true,
+      "createdAt": "2026-10-31T13:04:56.081Z",
+      "updatedAt": "2026-10-31T13:04:56.081Z"
+    }
+  ],
+  "companyInfo": {
+    "name": "Les Laboratoires T. Wiley",
+    "slogan": "Cosmétiques — Détergences hospitalières — Domestique — Mécanique",
+    "activities": "Cosmétiques — Détergences hospitalières — Domestique — Mécanique",
+    "logo": "/logo-laboratoires-t-wiley.jpg",
+    "aboutHeroImage": "/uploads/a-propos-hero-bg.jpg",
+    "description": "Les Laboratoires T. Wiley sont spécialisés dans la recherche, la formulation et la distribution de solutions certifiées en cosmétiques, détergences hospitalières, entretien domestique et mécanique industrielle.",
+    "phone1": "07 67 62 64 68",
+    "phone2": "01 40 98 64 64",
+    "phone3": "27 31 62 41 83",
+    "phoneUS": "+1 704 287 2551",
+    "phone": "07 67 62 64 68",
+    "whatsappNumber": "2250767626468",
+    "email": "",
+    "address": "France 1, Feu Pacha, Bouaké, Côte d'Ivoire",
+    "city": "Bouaké",
+    "country": "Côte d'Ivoire",
+    "openingHours": "Lundi au Vendredi : 08h00 - 18h00 | Samedi : 08h30 - 16h00",
+    "socialLinks": {
+      "facebook": "https://facebook.com",
+      "instagram": "https://instagram.com",
+      "linkedin": "https://linkedin.com"
+    },
+    "mission": "Fournir à nos clients des produits d’hygiène et d’entretien hautement qualitatifs, accessibles et fiables, assurant une propreté impeccable et un environnement sain.",
+    "vision": "Devenir la référence régionale incontournable pour l’approvisionnement en produits d’hygiène, détergents certifiés et solutions d’entretien industriel. ",
+    "history": "Fondée avec la volonté de répondre aux exigences croissantes des entreprises et des ménages, notre société s’est imposée grâce à la rigueur de sa sélection de formules, sa disponibilité permanente en stock et la rapidité de son service commercial de proximité.",
+    "domainActivities": [
+      {
+        "title": "Produits d'entretien courants & sols",
+        "description": "Formulations pour le lavage, la protection et le lustrage de toutes les surfaces modernes, carrelages et vitrages."
+      },
+      {
+        "title": "Détergents & Lessives concentrées",
+        "description": "Solutions techniques puissantes pour le traitement des textiles et le nettoyage régulier des collectivités."
+      },
+      {
+        "title": "Cosmétiques d’hygiène & soins des mains",
+        "description": "Savons moussants, gels lavants dermatologiques et gels hydroalcooliques conformes aux normes sanitaires."
+      },
+      {
+        "title": "Hygiène industrielle & dégraissants lourds",
+        "description": "Dégraissants et décapants à haute concentration pour ateliers mécaniques, industries agroalimentaires et chantiers."
+      },
+      {
+        "title": "Solutions d’entretien domestique & vaisselle",
+        "description": "Gamme complète pour le confort de la maison, vaisselle concentrée, désodorisants et nettoyants sanitaires."
+      }
+    ],
+    "commitments": [
+      {
+        "title": "Qualité éprouvée",
+        "description": "Sélection rigoureuse des formules pour garantir une efficacité maximale dès la première application."
+      },
+      {
+        "title": "Disponibilité en stock",
+        "description": "Capacité de stockage importante permettant de satisfaire vos commandes urgentes sans rupture."
+      },
+      {
+        "title": "Satisfaction client",
+        "description": "Une équipe commerciale réactive et à l’écoute sur WhatsApp pour vous conseiller et vous accompagner."
+      },
+      {
+        "title": "Professionnalisme",
+        "description": "Respect strict des délais de livraison et transparence totale sur les conditionnements et les tarifs."
+      },
+      {
+        "title": "Proximité & Conseil",
+        "description": "Assistance personnalisée dans le choix des produits selon la nature de vos activités et de vos locaux."
+      }
+    ],
+    "clientSegments": [
+      {
+        "title": "Entreprises & Sièges sociaux",
+        "description": "Entretien régulier des bureaux, sanitaires, open spaces et réceptions."
+      },
+      {
+        "title": "Hôtels, Cafés & Restaurants",
+        "description": "Solutions pour cuisines professionnelles, vaisselle industrielle, sols et chambres."
+      },
+      {
+        "title": "Cliniques, Hôpitaux & Laboratoires",
+        "description": "Formulations sanitaires et hygiène des mains pour environnements à haute exigence."
+      },
+      {
+        "title": "Industries, Garages & Ateliers",
+        "description": "Dégraissants puissants pour sols industriels, machineries et résidus d’hydrocarbures."
+      },
+      {
+        "title": "Particuliers & Familles",
+        "description": "Conditionnements économiques et pratiques pour le nettoyage quotidien de la maison."
+      }
+    ],
+    "banner": "/uploads/1793704301024-0-537406168030994332.jpg"
+  },
+  "themeSettings": {
+    "primaryColor": "#026ac8",
+    "secondaryColor": "#0f172a",
+    "buttonColor": "#16a34a",
+    "accentColor": "#d97706"
+  },
+  "adminCredentials": {
+    "email": "admin@laboratoires-twiley.ci",
+    "password": "admin2026",
+    "updatedAt": "2026-10-31T10:04:59.478Z"
+  },
+  "chatConversations": [
+    {
+      "id": "conv-1793700287668-i66hq",
+      "customerName": "Client Test",
+      "customerPhone": "",
+      "createdAt": "2026-11-03T10:04:47.668Z",
+      "updatedAt": "2026-11-03T10:04:47.668Z",
+      "status": "active",
+      "unreadByAdmin": true,
+      "unreadByClient": false,
+      "messages": [
+        {
+          "id": "msg-1793700287668-eccz",
+          "sender": "client",
+          "senderName": "Client Test",
+          "text": "Bonjour, avez-vous des fûts de dégraissant 20L ?",
+          "timestamp": "2026-11-03T10:04:47.668Z"
+        },
+        {
+          "id": "msg-auto-1793700287668",
+          "sender": "agent",
+          "senderName": "Assistant T. Wiley",
+          "text": "Bonjour et bienvenue aux Laboratoires T. Wiley ! 👋 Un conseiller clientèle a bien reçu votre message. Posez-nous votre question, nous sommes en ligne pour vous répondre.",
+          "timestamp": "2026-11-03T10:04:48.168Z"
+        }
+      ]
+    }
+  ]
+}
