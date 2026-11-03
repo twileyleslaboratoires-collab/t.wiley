@@ -227,8 +227,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -254,8 +260,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -319,8 +331,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -346,8 +364,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -411,8 +435,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -438,8 +468,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -503,8 +539,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -530,8 +572,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -595,8 +643,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -622,8 +676,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -687,8 +747,14 @@
       "isPublished": true,
       "isFeatured": true,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L PEHD" },
-        { "label": "Usage", "value": "Sols d'ateliers, hangars, parkings" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L PEHD"
+        },
+        {
+          "label": "Usage",
+          "value": "Sols d'ateliers, hangars, parkings"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -714,8 +780,14 @@
       "isPublished": true,
       "isFeatured": false,
       "characteristics": [
-        { "label": "Conditionnement", "value": "Bidon 5L" },
-        { "label": "Usage", "value": "Garages, machines industrielles, maintenance" }
+        {
+          "label": "Conditionnement",
+          "value": "Bidon 5L"
+        },
+        {
+          "label": "Usage",
+          "value": "Garages, machines industrielles, maintenance"
+        }
       ],
       "additionalInfo": "Tenir hors de portée des enfants.",
       "createdAt": "2026-11-03T11:50:00.000Z",
@@ -924,9 +996,9 @@
     "accentColor": "#d97706"
   },
   "adminCredentials": {
-    "email": "admin@laboratoires-twiley.ci",
-    "password": "admin2026",
-    "updatedAt": "2026-10-31T10:04:59.478Z"
+    "email": "twileyleslaboratoires@gmail.com",
+    "password": "scrypt:c568d26b77c64f537a321d7563c1e368:0068e516ee545e44892782ea53b53d8cbff0927884776c77c8686ecded1e8c12e7d2dd7745c21ec846c803e250eab466732ef217e2883dba8a67d2f84b72ecc2",
+    "updatedAt": "2026-11-03T17:13:05.441Z"
   },
   "chatConversations": [
     {

@@ -48,3 +48,4 @@ export function logSecurityEvent(entry: Omit<AuditLogEntry, 'timestamp'>): void 
     console.info(`[SECURITY AUDIT] ${logLine.trim()}`);
   }
 }
+
