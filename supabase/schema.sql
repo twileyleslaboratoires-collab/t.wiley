@@ -120,6 +120,21 @@ ALTER TABLE public.about_sections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 
+-- Nettoyage préalable des politiques si existantes pour permettre une réexécution sans erreur
+DROP POLICY IF EXISTS "Public Read Categories" ON public.categories;
+DROP POLICY IF EXISTS "Public Read Products" ON public.products;
+DROP POLICY IF EXISTS "Public Read Partners" ON public.partners;
+DROP POLICY IF EXISTS "Public Read Company Info" ON public.company_info;
+DROP POLICY IF EXISTS "Public Read About Sections" ON public.about_sections;
+DROP POLICY IF EXISTS "Public Access Conversations" ON public.chat_conversations;
+DROP POLICY IF EXISTS "Public Access Messages" ON public.chat_messages;
+
+DROP POLICY IF EXISTS "Admin All Categories" ON public.categories;
+DROP POLICY IF EXISTS "Admin All Products" ON public.products;
+DROP POLICY IF EXISTS "Admin All Partners" ON public.partners;
+DROP POLICY IF EXISTS "Admin All Company Info" ON public.company_info;
+DROP POLICY IF EXISTS "Admin All About Sections" ON public.about_sections;
+
 -- Politiques de lecture publique
 CREATE POLICY "Public Read Categories" ON public.categories FOR SELECT USING (true);
 CREATE POLICY "Public Read Products" ON public.products FOR SELECT USING (is_published = true);
@@ -129,7 +144,7 @@ CREATE POLICY "Public Read About Sections" ON public.about_sections FOR SELECT U
 CREATE POLICY "Public Access Conversations" ON public.chat_conversations FOR ALL USING (true);
 CREATE POLICY "Public Access Messages" ON public.chat_messages FOR ALL USING (true);
 
--- Politiques de modification sécurisées
+-- Politiques de modification
 CREATE POLICY "Admin All Categories" ON public.categories FOR ALL USING (true);
 CREATE POLICY "Admin All Products" ON public.products FOR ALL USING (true);
 CREATE POLICY "Admin All Partners" ON public.partners FOR ALL USING (true);
