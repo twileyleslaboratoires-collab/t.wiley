@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "supabase:migrate": "node scripts/migrate-to-supabase.js"
+    "supabase:migrate": "node scripts/migrate-to-supabase.js",
+    "supabase:admin": "node scripts/create-supabase-admin.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
