@@ -4,8 +4,42 @@ import { getDatabase, saveDatabase } from './storage';
 
 const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@laboratoires-twiley.ci';
 const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin2026';
-const SESSION_SECRET = process.env.SESSION_SECRET || 't-wiley-secure-super-token-salt-2026';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'twiley_secure_super_random_session_key_production_2026';
 const COOKIE_NAME = 'admin_session_token';
+
+/**
+ * Hache un mot de passe avec un sel cryptographique aléatoire de 16 octets via scrypt
+ */
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedKey = crypto.scryptSync(password, salt, 64);
+  return `scrypt:${salt}:${derivedKey.toString('hex')}`;
+}
+
+/**
+ * Vérifie un mot de passe en temps constant contre un hachage salé ou un mot de passe brut hérité
+ */
+export function verifyPassword(password?: string, storedHashOrPlain?: string): boolean {
+  if (!password || !storedHashOrPlain) return false;
+
+  // Format sécurisé scrypt:salt:hash
+  if (storedHashOrPlain.startsWith('scrypt:')) {
+    const parts = storedHashOrPlain.split(':');
+    if (parts.length !== 3) return false;
+    const [, salt, expectedHashHex] = parts;
+    const derivedKey = crypto.scryptSync(password, salt, 64);
+    const expectedBuffer = Buffer.from(expectedHashHex, 'hex');
+
+    if (derivedKey.length !== expectedBuffer.length) return false;
+    return crypto.timingSafeEqual(derivedKey, expectedBuffer);
+  }
+
+  // Format hérité en texte brut (pour compatibilité ascendante avec auto-migration)
+  const passwordBuffer = Buffer.from(password);
+  const storedBuffer = Buffer.from(storedHashOrPlain);
+  if (passwordBuffer.length !== storedBuffer.length) return false;
+  return crypto.timingSafeEqual(passwordBuffer, storedBuffer);
+}
 
 /**
  * Génère un token de session signé avec date d'expiration
@@ -34,7 +68,11 @@ export function verifySessionToken(token: string | undefined): boolean {
   const expectedData = `admin:${email}:${expiresAt}`;
   const expectedHmac = crypto.createHmac('sha256', SESSION_SECRET).update(expectedData).digest('hex');
 
-  return crypto.timingSafeEqual(Buffer.from(receivedHmac), Buffer.from(expectedHmac));
+  const receivedBuffer = Buffer.from(receivedHmac);
+  const expectedBuffer = Buffer.from(expectedHmac);
+
+  if (receivedBuffer.length !== expectedBuffer.length) return false;
+  return crypto.timingSafeEqual(receivedBuffer, expectedBuffer);
 }
 
 /**
@@ -58,7 +96,7 @@ export function getAdminCredentials() {
 }
 
 /**
- * Met à jour les identifiants administrateur
+ * Met à jour les identifiants administrateur en hachant systématiquement le nouveau mot de passe
  */
 export function updateAdminCredentials(email: string, password?: string) {
   const db = getDatabase();
@@ -67,37 +105,65 @@ export function updateAdminCredentials(email: string, password?: string) {
     password: DEFAULT_ADMIN_PASSWORD,
   };
 
+  let newPassword = current.password;
+  if (password && password.trim()) {
+    newPassword = hashPassword(password.trim());
+  }
+
   db.adminCredentials = {
     email: email.trim().toLowerCase(),
-    password: password && password.trim() ? password.trim() : current.password,
+    password: newPassword,
     updatedAt: new Date().toISOString(),
   };
 
   saveDatabase(db);
-  return db.adminCredentials;
+  return {
+    email: db.adminCredentials.email,
+    updatedAt: db.adminCredentials.updatedAt,
+  };
 }
 
 /**
- * Vérifie l'email et le mot de passe administrateur
+ * Vérifie l'email et le mot de passe administrateur avec auto-migration vers le hachage sécurisé
  */
 export function verifyAdminLogin(email?: string, password?: string): boolean {
   if (!password) return false;
 
   const creds = getAdminCredentials();
 
+  // Vérification du mot de passe
   const isPasswordValid =
-    password === creds.password || password === DEFAULT_ADMIN_PASSWORD;
+    verifyPassword(password, creds.password) ||
+    verifyPassword(password, DEFAULT_ADMIN_PASSWORD);
 
-  if (!email || email.trim() === '') {
-    // Si l'utilisateur n'a renseigné que le mot de passe
-    return isPasswordValid;
+  if (!isPasswordValid) return false;
+
+  // Si email fourni, vérifier correspondance
+  if (email && email.trim() !== '') {
+    const normEmail = email.trim().toLowerCase();
+    const isEmailValid =
+      normEmail === creds.email.toLowerCase() ||
+      normEmail === DEFAULT_ADMIN_EMAIL.toLowerCase();
+
+    if (!isEmailValid) return false;
   }
 
-  const isEmailValid =
-    email.trim().toLowerCase() === creds.email.toLowerCase() ||
-    email.trim().toLowerCase() === DEFAULT_ADMIN_EMAIL.toLowerCase();
+  // Auto-migration si le mot de passe en base était encore en clair
+  if (creds.password && !creds.password.startsWith('scrypt:')) {
+    try {
+      const db = getDatabase();
+      if (db.adminCredentials) {
+        db.adminCredentials.password = hashPassword(password);
+        db.adminCredentials.updatedAt = new Date().toISOString();
+        saveDatabase(db);
+        console.info('[SECURITY] Mot de passe administrateur migré vers scrypt salé.');
+      }
+    } catch (err) {
+      console.error('[SECURITY] Échec de la migration du hash:', err);
+    }
+  }
 
-  return isEmailValid && isPasswordValid;
+  return true;
 }
 
 /**

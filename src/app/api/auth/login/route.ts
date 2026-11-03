@@ -1,18 +1,87 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminLogin, createSessionToken, COOKIE_NAME } from '@/lib/auth';
+import { checkLoginRateLimit, recordFailedLogin, resetLoginRateLimit } from '@/lib/rateLimit';
+import { logSecurityEvent } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  return '127.0.0.1';
+}
+
+export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+
   try {
     const { email, password } = await request.json();
+    const rateLimitKey = `${ip}:${(email || 'admin').toLowerCase().trim()}`;
 
-    if (!verifyAdminLogin(email, password)) {
+    // 1. Contrôle anti force brute
+    const rateCheck = checkLoginRateLimit(rateLimitKey);
+    if (!rateCheck.allowed) {
+      logSecurityEvent({
+        action: 'ADMIN_LOGIN_LOCKED',
+        status: 'WARNING',
+        actor: email || 'unknown',
+        ip,
+        details: { retryAfterSeconds: rateCheck.retryAfterSeconds },
+      });
+
       return NextResponse.json(
-        { error: 'Email ou mot de passe administrateur incorrect.' },
+        {
+          error: `Trop de tentatives échouées. Compte temporairement verrouillé pour ${Math.ceil((rateCheck.retryAfterSeconds || 900) / 60)} minute(s).`,
+          locked: true,
+          retryAfter: rateCheck.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateCheck.retryAfterSeconds || 900),
+          },
+        }
+      );
+    }
+
+    // 2. Vérification des identifiants
+    const isValid = verifyAdminLogin(email, password);
+
+    if (!isValid) {
+      const failResult = recordFailedLogin(rateLimitKey);
+
+      logSecurityEvent({
+        action: 'ADMIN_LOGIN_FAILED',
+        status: 'FAILURE',
+        actor: email || 'unknown',
+        ip,
+        details: { remainingAttempts: failResult.remainingAttempts },
+      });
+
+      const message =
+        failResult.remainingAttempts > 0
+          ? `Identifiants incorrects. ${failResult.remainingAttempts} tentative(s) restante(s).`
+          : 'Trop de tentatives échouées. Accès temporairement suspendu.';
+
+      return NextResponse.json(
+        { error: message, remainingAttempts: failResult.remainingAttempts },
         { status: 401 }
       );
     }
+
+    // 3. Succès : Réinitialisation du limiteur et création du token
+    resetLoginRateLimit(rateLimitKey);
+
+    logSecurityEvent({
+      action: 'ADMIN_LOGIN_SUCCESS',
+      status: 'SUCCESS',
+      actor: email || 'admin@laboratoires-twiley.ci',
+      ip,
+    });
 
     const token = createSessionToken(email || 'admin@laboratoires-twiley.ci');
     const response = NextResponse.json({ success: true, message: 'Connexion réussie.' });
@@ -27,6 +96,13 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
+    logSecurityEvent({
+      action: 'ADMIN_LOGIN_ERROR',
+      status: 'FAILURE',
+      actor: 'system',
+      ip,
+    });
+
     return NextResponse.json(
       { error: 'Une erreur est survenue lors de la connexion.' },
       { status: 500 }

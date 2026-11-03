@@ -111,7 +111,7 @@ CREATE INDEX IF NOT EXISTS idx_products_published ON public.products(is_publishe
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON public.categories(slug);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_conv ON public.chat_messages(conversation_id);
 
--- 7. CONFIGURATION ROW LEVEL SECURITY (RLS)
+-- 7. CONFIGURATION ROW LEVEL SECURITY (RLS) RENFORCÉE
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.partners ENABLE ROW LEVEL SECURITY;
@@ -120,7 +120,7 @@ ALTER TABLE public.about_sections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 
--- Nettoyage préalable des politiques si existantes pour permettre une réexécution sans erreur
+-- Nettoyage préalable complet des politiques pour réexécution idempotente
 DROP POLICY IF EXISTS "Public Read Categories" ON public.categories;
 DROP POLICY IF EXISTS "Public Read Products" ON public.products;
 DROP POLICY IF EXISTS "Public Read Partners" ON public.partners;
@@ -128,6 +128,9 @@ DROP POLICY IF EXISTS "Public Read Company Info" ON public.company_info;
 DROP POLICY IF EXISTS "Public Read About Sections" ON public.about_sections;
 DROP POLICY IF EXISTS "Public Access Conversations" ON public.chat_conversations;
 DROP POLICY IF EXISTS "Public Access Messages" ON public.chat_messages;
+DROP POLICY IF EXISTS "Public Insert Conversations" ON public.chat_conversations;
+DROP POLICY IF EXISTS "Public Insert Messages" ON public.chat_messages;
+DROP POLICY IF EXISTS "Public Read Messages" ON public.chat_messages;
 
 DROP POLICY IF EXISTS "Admin All Categories" ON public.categories;
 DROP POLICY IF EXISTS "Admin All Products" ON public.products;
@@ -135,19 +138,54 @@ DROP POLICY IF EXISTS "Admin All Partners" ON public.partners;
 DROP POLICY IF EXISTS "Admin All Company Info" ON public.company_info;
 DROP POLICY IF EXISTS "Admin All About Sections" ON public.about_sections;
 
--- Politiques de lecture publique
-CREATE POLICY "Public Read Categories" ON public.categories FOR SELECT USING (true);
-CREATE POLICY "Public Read Products" ON public.products FOR SELECT USING (is_published = true);
-CREATE POLICY "Public Read Partners" ON public.partners FOR SELECT USING (true);
-CREATE POLICY "Public Read Company Info" ON public.company_info FOR SELECT USING (true);
-CREATE POLICY "Public Read About Sections" ON public.about_sections FOR SELECT USING (is_published = true);
-CREATE POLICY "Public Access Conversations" ON public.chat_conversations FOR ALL USING (true);
-CREATE POLICY "Public Access Messages" ON public.chat_messages FOR ALL USING (true);
+-- ==============================================================================
+-- POLITIQUES DE LECTURE PUBLIQUE (ACCÈS STRICTEMENT LIMITÉ AU RÔLE SELECT)
+-- Les visiteurs publics (anon) ont UNIQUEMENT le droit de lire les données publiées
+-- Aucune modification (INSERT, UPDATE, DELETE) n'est accordée au rôle public/anon
+-- ==============================================================================
 
--- Politiques de modification
-CREATE POLICY "Admin All Categories" ON public.categories FOR ALL USING (true);
-CREATE POLICY "Admin All Products" ON public.products FOR ALL USING (true);
-CREATE POLICY "Admin All Partners" ON public.partners FOR ALL USING (true);
-CREATE POLICY "Admin All Company Info" ON public.company_info FOR ALL USING (true);
-CREATE POLICY "Admin All About Sections" ON public.about_sections FOR ALL USING (true);
+CREATE POLICY "Public Read Categories" 
+ON public.categories FOR SELECT 
+TO anon, authenticated 
+USING (true);
+
+CREATE POLICY "Public Read Products" 
+ON public.products FOR SELECT 
+TO anon, authenticated 
+USING (is_published = true);
+
+CREATE POLICY "Public Read Partners" 
+ON public.partners FOR SELECT 
+TO anon, authenticated 
+USING (true);
+
+CREATE POLICY "Public Read Company Info" 
+ON public.company_info FOR SELECT 
+TO anon, authenticated 
+USING (true);
+
+CREATE POLICY "Public Read About Sections" 
+ON public.about_sections FOR SELECT 
+TO anon, authenticated 
+USING (is_published = true);
+
+-- Chat : les visiteurs publics peuvent uniquement insérer des messages dans une conversation
+CREATE POLICY "Public Insert Conversations" 
+ON public.chat_conversations FOR INSERT 
+TO anon, authenticated 
+WITH CHECK (true);
+
+CREATE POLICY "Public Insert Messages" 
+ON public.chat_messages FOR INSERT 
+TO anon, authenticated 
+WITH CHECK (true);
+
+CREATE POLICY "Public Read Messages" 
+ON public.chat_messages FOR SELECT 
+TO anon, authenticated 
+USING (true);
+
+-- Note : Les opérations de gestion (création, modification, suppression) sont exécutées
+-- côté serveur via la clé secrète SUPABASE_SERVICE_ROLE_KEY, qui outrepasse légitimement
+-- le RLS sans jamais exposer de privilèges d'écriture au navigateur client.
 

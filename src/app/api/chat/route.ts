@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase, saveDatabase } from '@/lib/storage';
+import { isUserAdmin } from '@/lib/auth';
 import { ChatConversation, ChatMessage } from '@/types';
 
 export const dynamic = 'force-dynamic';
+
+function sanitizeText(str: string): string {
+  return str.replace(/<[^>]*>?/gm, '').trim();
+}
 
 function getSmartAutoReply(text: string): string | null {
   const t = text.toLowerCase();
@@ -34,15 +39,24 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const conversationId = url.searchParams.get('conversationId');
 
+    // 1. Accès à une conversation spécifique (visiteur ou administrateur)
     if (conversationId) {
-      const conv = conversations.find((c) => c.id === conversationId);
+      const sanitizedId = sanitizeText(conversationId);
+      const conv = conversations.find((c) => c.id === sanitizedId);
       if (!conv) {
         return NextResponse.json({ error: 'Conversation non trouvée' }, { status: 404 });
       }
       return NextResponse.json(conv);
     }
 
-    // Vue globale pour l'administration (triée par activité la plus récente)
+    // 2. Accès à la liste complète de toutes les conversations : RÉSERVÉ STRICTEMENT À L'ADMINISTRATEUR
+    if (!isUserAdmin()) {
+      return NextResponse.json(
+        { error: 'Accès non autorisé à la liste des conversations.' },
+        { status: 403 }
+      );
+    }
+
     const sorted = [...conversations].sort(
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
@@ -62,6 +76,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Le texte du message est requis' }, { status: 400 });
     }
 
+    // Protection : seul un administrateur authentifié peut envoyer des messages en tant qu'agent
+    if (sender === 'agent' && !isUserAdmin()) {
+      return NextResponse.json(
+        { error: 'Action non autorisée : droits administrateur requis pour répondre en tant qu’agent.' },
+        { status: 403 }
+      );
+    }
+
+    // Assainissement et limitation de longueur (anti-DoS et anti-XSS)
+    const sanitizedText = sanitizeText(text).substring(0, 2000);
+    const sanitizedName = customerName ? sanitizeText(String(customerName)).substring(0, 100) : '';
+    const sanitizedPhone = customerPhone ? sanitizeText(String(customerPhone)).substring(0, 30) : '';
+    const sanitizedConvId = conversationId ? sanitizeText(String(conversationId)).substring(0, 80) : '';
+
+    if (!sanitizedText) {
+      return NextResponse.json({ error: 'Message invalide après assainissement' }, { status: 400 });
+    }
+
     const db = getDatabase();
     if (!Array.isArray(db.chatConversations)) {
       db.chatConversations = [];
@@ -70,18 +102,18 @@ export async function POST(req: NextRequest) {
     const now = new Date().toISOString();
     let conv: ChatConversation | undefined;
 
-    if (conversationId) {
-      conv = db.chatConversations.find((c) => c.id === conversationId);
+    if (sanitizedConvId) {
+      conv = db.chatConversations.find((c) => c.id === sanitizedConvId);
     }
 
     const isNew = !conv;
 
     if (!conv) {
-      const newId = conversationId || `conv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const newId = sanitizedConvId || `conv-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
       conv = {
         id: newId,
-        customerName: customerName || `Client #${newId.slice(-4).toUpperCase()}`,
-        customerPhone: customerPhone || '',
+        customerName: sanitizedName || `Client #${newId.slice(-4).toUpperCase()}`,
+        customerPhone: sanitizedPhone,
         createdAt: now,
         updatedAt: now,
         status: 'active',
@@ -92,11 +124,11 @@ export async function POST(req: NextRequest) {
       db.chatConversations.unshift(conv);
     } else {
       conv.updatedAt = now;
-      if (customerName && conv.customerName.startsWith('Client #')) {
-        conv.customerName = customerName;
+      if (sanitizedName && conv.customerName.startsWith('Client #')) {
+        conv.customerName = sanitizedName;
       }
-      if (customerPhone) {
-        conv.customerPhone = customerPhone;
+      if (sanitizedPhone) {
+        conv.customerPhone = sanitizedPhone;
       }
       if (sender === 'client') {
         conv.unreadByAdmin = true;
@@ -106,21 +138,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Ajouter le message utilisateur
+    // Ajouter le message utilisateur assaini
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       sender: sender as 'client' | 'agent',
       senderName: sender === 'client' ? conv.customerName : 'Conseiller T. Wiley',
-      text: text.trim(),
+      text: sanitizedText,
       timestamp: now,
     };
     conv.messages.push(userMsg);
 
-    // Si nouveau client ou première question, générer une réponse instantanée d'accueil ou d'assistance intelligente
+    // Si nouveau client ou première question, réponse automatique
     if (sender === 'client') {
       const autoReplyText = isNew
         ? "Bonjour et bienvenue aux Laboratoires T. Wiley ! 👋 Un conseiller clientèle a bien reçu votre message. Posez-nous votre question, nous sommes en ligne pour vous répondre."
-        : getSmartAutoReply(text.trim());
+        : getSmartAutoReply(sanitizedText);
 
       if (autoReplyText) {
         const autoMsg: ChatMessage = {
@@ -142,4 +174,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur lors de l’envoi' }, { status: 500 });
   }
 }
-
