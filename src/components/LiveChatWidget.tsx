@@ -130,9 +130,13 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
             }
           }
         }
+      } else {
+        // En cas d'erreur de communication, restituer le message pour ne pas le perdre
+        setInputText(msg);
       }
     } catch (err) {
       console.error('Erreur chat:', err);
+      setInputText(msg);
     } finally {
       setLoading(false);
     }
@@ -151,7 +155,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
   }
 
   return (
-    <div className="fixed bottom-6 left-6 z-40">
+    <div className={`fixed z-50 ${isOpen ? 'inset-x-3 bottom-3 top-14 sm:inset-auto sm:bottom-6 sm:left-6' : 'bottom-6 left-6'}`}>
       {/* BOUTON FLOTTANT D'OUVERTURE DU CHAT EN DIRECT */}
       {!isOpen && (
         <button
@@ -185,7 +189,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
 
       {/* BOÎTE DE DIALOGUE DU CHAT EN DIRECT */}
       {isOpen && (
-        <div className="w-[330px] sm:w-[380px] h-[520px] max-h-[85vh] bg-white rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-full sm:w-[380px] h-full sm:h-[520px] max-h-[85vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* En-tête du Chat */}
           <div className="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-3">
@@ -272,12 +276,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
             {/* Historique des messages */}
             {conversation?.messages?.map((msg) => {
               const isClient = msg.sender === 'client';
-              // Ne pas afficher le widget flottant dans l'espace administration / gestionnaire
-  if (pathname && (pathname.startsWith('/gestionnaire') || pathname.startsWith('/admin'))) {
-    return null;
-  }
-
-  return (
+              return (
                 <div
                   key={msg.id}
                   className={`flex items-start gap-2 ${isClient ? 'justify-end' : 'justify-start'}`}
@@ -319,8 +318,6 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
                 </div>
               );
             })}
-
-
           </div>
 
           {/* Rappel : WhatsApp est réservé pour la commande de produits */}
@@ -336,21 +333,25 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
             </Link>
           </div>
 
-          {/* Champ de saisie et bouton d'envoi */}
-          <div className="p-3 bg-white border-t border-slate-200">
+          {/* Champ de saisie et bouton d'envoi avec formulaire accessible */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="p-3 bg-white border-t border-slate-200"
+          >
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
                 placeholder="Posez votre question à notre conseiller..."
                 disabled={loading}
-                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
+                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
               />
               <button
-                type="button"
-                onClick={() => handleSendMessage()}
+                type="submit"
                 disabled={!inputText.trim() || loading}
                 className="w-10 h-10 rounded-xl bg-brand-700 hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-all shadow-xs flex-shrink-0"
                 title="Envoyer"
@@ -359,7 +360,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
                 <Send className="w-4 h-4" />
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </div>

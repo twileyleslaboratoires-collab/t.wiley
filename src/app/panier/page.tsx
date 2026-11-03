@@ -42,14 +42,23 @@ export default function CartPage() {
 
   if (!isInitialized) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="mb-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-900"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Continuer mes achats dans la boutique
+          </Link>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <ShoppingBag className="w-8 h-8 text-brand-600" />
+            <h1 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-brand-600" />
               Mon Panier de commande
             </h1>
-            <p className="text-sm text-slate-500 mt-1">Chargement de votre sélection...</p>
+            <p className="text-xs text-slate-500 mt-0.5">Chargement de votre sélection...</p>
           </div>
         </div>
         <div className="py-12 text-center text-slate-500">
@@ -61,15 +70,26 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-      {/* En-tête de la page */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4 mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      {/* Bouton retour placé tout en haut de l'encadrement */}
+      <div className="mb-3">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-900 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Continuer mes achats dans la boutique
+        </Link>
+      </div>
+
+      {/* En-tête de la page avec écriture compacte et adaptée */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <ShoppingBag className="w-8 h-8 text-brand-600" />
+          <h1 className="text-base sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-brand-600" />
             Mon Panier de commande
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             {totalCount > 0
               ? `Vous avez ${totalCount} article(s) dans votre panier`
               : 'Votre panier est actuellement vide'}
@@ -79,9 +99,9 @@ export default function CartPage() {
         {items.length > 0 && (
           <button
             onClick={clearCart}
-            className="text-xs text-rose-600 hover:text-rose-800 font-bold self-start sm:self-auto inline-flex items-center gap-1.5 hover:underline"
+            className="text-xs text-rose-600 hover:text-rose-800 font-semibold self-start sm:self-auto inline-flex items-center gap-1 hover:underline"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3.5 h-3.5" />
             Vider le panier
           </button>
         )}
@@ -206,17 +226,6 @@ export default function CartPage() {
                 </div>
               );
             })}
-
-            {/* Lien continuer les achats */}
-            <div className="pt-4">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-xs font-bold text-brand-700 hover:text-brand-900"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Continuer mes achats dans la boutique
-              </Link>
-            </div>
           </div>
 
           {/* RÉSUMÉ DE LA COMMANDE ET ACTION WHATSAPP */}

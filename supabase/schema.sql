@@ -169,11 +169,21 @@ ON public.about_sections FOR SELECT
 TO anon, authenticated 
 USING (is_published = true);
 
--- Chat : les visiteurs publics peuvent uniquement insérer des messages dans une conversation
+-- Chat : les visiteurs publics peuvent insérer et consulter leurs échanges
 CREATE POLICY "Public Insert Conversations" 
 ON public.chat_conversations FOR INSERT 
 TO anon, authenticated 
 WITH CHECK (true);
+
+CREATE POLICY "Public Read Conversations" 
+ON public.chat_conversations FOR SELECT 
+TO anon, authenticated 
+USING (true);
+
+CREATE POLICY "Public Update Conversations" 
+ON public.chat_conversations FOR UPDATE 
+TO anon, authenticated 
+USING (true);
 
 CREATE POLICY "Public Insert Messages" 
 ON public.chat_messages FOR INSERT 

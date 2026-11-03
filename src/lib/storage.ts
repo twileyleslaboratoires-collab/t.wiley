@@ -299,27 +299,39 @@ export const INITIAL_ABOUT_SECTIONS: AboutSection[] = [
   },
 ];
 
+let memoryDb: DatabaseSchema | null = null;
+
+function getTmpDbPath(): string {
+  try {
+    const os = require('os');
+    return path.join(os.tmpdir(), 't-wiley-database.json');
+  } catch {
+    return '/tmp/t-wiley-database.json';
+  }
+}
+
 export function ensureDatabase(): DatabaseSchema {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (memoryDb) {
+    return memoryDb;
   }
 
-  if (!fs.existsSync(DB_FILE)) {
-    const initialData: DatabaseSchema = {
-      products: INITIAL_PRODUCTS,
-      categories: INITIAL_CATEGORIES,
-      partners: INITIAL_PARTNERS,
-      aboutSections: INITIAL_ABOUT_SECTIONS,
-      companyInfo: INITIAL_COMPANY_INFO,
-      themeSettings: INITIAL_THEME_SETTINGS,
-      adminCredentials: INITIAL_ADMIN_CREDENTIALS,
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
-    return initialData;
+  let fileContent = '';
+  const tmpFile = getTmpDbPath();
+
+  try {
+    if (fs.existsSync(DB_FILE)) {
+      fileContent = fs.readFileSync(DB_FILE, 'utf8');
+    } else if (fs.existsSync(tmpFile)) {
+      fileContent = fs.readFileSync(tmpFile, 'utf8');
+    }
+  } catch {
+    fileContent = '';
   }
 
   try {
-    const fileContent = fs.readFileSync(DB_FILE, 'utf8');
+    if (!fileContent) {
+      throw new Error('Fichier DB absent');
+    }
     const parsed = JSON.parse(fileContent);
 
     // Fusion avec les nouvelles informations officielles
@@ -352,9 +364,9 @@ export function ensureDatabase(): DatabaseSchema {
       chatConversations: Array.isArray(parsed.chatConversations) ? parsed.chatConversations : [],
     };
 
+    memoryDb = finalData;
     return finalData;
-  } catch (error) {
-    console.error('Erreur lecture DB, réinitialisation...', error);
+  } catch {
     const initialData: DatabaseSchema = {
       products: INITIAL_PRODUCTS,
       categories: INITIAL_CATEGORIES,
@@ -363,17 +375,41 @@ export function ensureDatabase(): DatabaseSchema {
       companyInfo: INITIAL_COMPANY_INFO,
       themeSettings: INITIAL_THEME_SETTINGS,
       adminCredentials: INITIAL_ADMIN_CREDENTIALS,
+      chatConversations: [],
     };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+    memoryDb = initialData;
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf8');
+    } catch {
+      try {
+        fs.writeFileSync(tmpFile, JSON.stringify(initialData, null, 2), 'utf8');
+      } catch {
+        // En lecture seule, conservation en mémoire vive
+      }
+    }
     return initialData;
   }
 }
 
 export function saveDatabase(data: DatabaseSchema): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  memoryDb = data;
+  const tmpFile = getTmpDbPath();
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch {
+    // Si process.cwd() est en lecture seule (Vercel Serverless / AWS Lambda EROFS)
+    try {
+      fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), 'utf8');
+    } catch {
+      // Conservation en mémoire vive
+    }
   }
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
 export function getDatabase(): DatabaseSchema {

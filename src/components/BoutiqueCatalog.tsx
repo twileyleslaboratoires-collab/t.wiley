@@ -40,8 +40,6 @@ export default function BoutiqueCatalog({
   const [sortBy, setSortBy] = useState('newest');
   const [priceRange, setPriceRange] = useState<number>(50000); // Max FCFA slider
   const [onlyInStock, setOnlyInStock] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
 
   // Auto-mise à jour en temps réel (le site se met à jour seul en arrière-plan)
   useEffect(() => {
@@ -141,25 +139,16 @@ export default function BoutiqueCatalog({
     }
   }, [filteredProducts, sortBy]);
 
-  // Pagination
-  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage) || 1;
-  const paginatedProducts = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return sortedProducts.slice(start, start + itemsPerPage);
-  }, [sortedProducts, currentPage, itemsPerPage]);
-
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCategoryId('all');
     setSortBy('newest');
     setPriceRange(maxProductPrice);
     setOnlyInStock(false);
-    setCurrentPage(1);
   };
 
   const handleCategorySelect = (catId: string) => {
     setSelectedCategoryId(catId);
-    setCurrentPage(1);
   };
 
   return (
@@ -313,10 +302,7 @@ export default function BoutiqueCatalog({
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Rechercher un produit (nom, détergent, lotion, gel, savon)..."
                 className="w-full py-2.5 pl-10 pr-9 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 bg-slate-50/70 focus:bg-white transition-colors"
               />
@@ -352,10 +338,7 @@ export default function BoutiqueCatalog({
               <select
                 id="sort-select"
                 value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={(e) => setSortBy(e.target.value)}
                 className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 w-full sm:w-auto"
               >
                 <option value="newest">Nouveautés</option>
@@ -423,10 +406,10 @@ export default function BoutiqueCatalog({
           </div>
         </div>
 
-        {/* GRILLE DES PRODUITS PLEINE LARGEUR (4 COLONNES COMPACTES ET ÉLÉGANTES) */}
-        {paginatedProducts.length > 0 ? (
+        {/* GRILLE DES PRODUITS PLEINE LARGEUR EN CONTINU (SANS PAGINATION) */}
+        {sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {paginatedProducts.map((product) => (
+            {sortedProducts.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -447,42 +430,6 @@ export default function BoutiqueCatalog({
               className="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs"
             >
               Réinitialiser les filtres
-            </button>
-          </div>
-        )}
-
-        {/* PAGINATION PROGRESSIVE */}
-        {totalPages > 1 && (
-          <div className="mt-12 flex items-center justify-center gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50"
-            >
-              ← Précédent
-            </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => setCurrentPage(pageNumber)}
-                  className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${currentPage === pageNumber
-                      ? 'bg-brand-600 text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                >
-                  {pageNumber}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-200 bg-white text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50"
-            >
-              Suivant →
             </button>
           </div>
         )}
