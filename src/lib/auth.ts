@@ -131,18 +131,22 @@ export function verifyAdminLogin(email?: string, password?: string): boolean {
 
   const creds = getAdminCredentials();
 
-  // Vérification du mot de passe
+  // Vérification du mot de passe (base locale ou variable d'environnement ADMIN_PASSWORD)
+  const envPassword = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
   const isPasswordValid =
     verifyPassword(password, creds.password) ||
-    verifyPassword(password, DEFAULT_ADMIN_PASSWORD);
+    verifyPassword(password, envPassword);
 
   if (!isPasswordValid) return false;
+
+  const envEmail = (process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL).toLowerCase();
 
   // Si email fourni, vérifier correspondance
   if (email && email.trim() !== '') {
     const normEmail = email.trim().toLowerCase();
     const isEmailValid =
       normEmail === creds.email.toLowerCase() ||
+      normEmail === envEmail ||
       normEmail === DEFAULT_ADMIN_EMAIL.toLowerCase();
 
     if (!isEmailValid) return false;
