@@ -36,7 +36,9 @@ export default function AdminLoginPage() {
       }
 
       showToast('Connexion réussie ! Bienvenue dans votre espace gestionnaire.', 'success');
-      router.push('/gestionnaire');
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const targetUrl = params?.get('redirect') || '/gestionnaire';
+      router.push(targetUrl);
       router.refresh();
     } catch {
       setError('Erreur réseau lors de la tentative de connexion.');
