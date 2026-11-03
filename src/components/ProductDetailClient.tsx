@@ -194,32 +194,6 @@ export default function ProductDetailClient({
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const renderAvailabilityBadge = () => {
-    switch (product.availability) {
-      case 'in_stock':
-        return (
-          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold">
-            <Check className="w-4 h-4 stroke-[2.5]" />
-            En stock
-          </span>
-        );
-      case 'on_demand':
-        return (
-          <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full text-xs font-bold">
-            <AlertTriangle className="w-4 h-4 stroke-[2.5]" />
-            Disponible sur commande
-          </span>
-        );
-      case 'out_of_stock':
-        return (
-          <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-full text-xs font-bold">
-            <XCircle className="w-4 h-4 stroke-[2.5]" />
-            Rupture temporaire
-          </span>
-        );
-    }
-  };
-
   // Lecteur vidéo responsive universel (YouTube ou MP4 local)
   const renderVideoPlayer = (url: string, title: string = 'Vidéo produit') => {
     if (!url) return null;
@@ -388,7 +362,6 @@ export default function ProductDetailClient({
               <span className="text-xs font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-3 py-1 rounded-lg">
                 {product.categoryName}
               </span>
-              {renderAvailabilityBadge()}
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
@@ -407,16 +380,16 @@ export default function ProductDetailClient({
               )}
             </div>
 
-            {/* PRIX */}
-            <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-baseline justify-between">
+            {/* PRIX (TAILLE OPTIMISÉE ET COMPACTE) */}
+            <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-baseline justify-between">
               <div>
                 <span className="text-xs text-slate-500 block font-medium">Prix unitaire</span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-brand-700">
+                  <span className="text-xl sm:text-2xl font-black text-brand-700">
                     {formatPriceFCFA(product.price)}
                   </span>
                   {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="text-sm font-semibold text-slate-400 line-through">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-400 line-through">
                       {formatPriceFCFA(product.originalPrice)}
                     </span>
                   )}
@@ -424,7 +397,7 @@ export default function ProductDetailClient({
               </div>
               <div className="text-right">
                 <span className="text-xs text-slate-500 block font-medium">Total estimé</span>
-                <span className="text-xl font-bold text-slate-900">
+                <span className="text-base sm:text-lg font-bold text-slate-900">
                   {formatPriceFCFA(product.price * quantity)}
                 </span>
               </div>
@@ -501,33 +474,33 @@ export default function ProductDetailClient({
             )}
           </div>
 
-          {/* SÉLECTEUR DE QUANTITÉ & BOUTONS D'ACTION */}
-          <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
-            <div className="flex items-center gap-4">
+          {/* SÉLECTEUR DE QUANTITÉ & BOUTONS D'ACTION (TAILLE RÉDUITE ET COMPACTE) */}
+          <div className="mt-6 pt-4 border-t border-slate-200 space-y-2.5">
+            <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Quantité :
               </span>
-              <div className="flex items-center border-2 border-slate-200 rounded-xl bg-white shadow-2xs">
+              <div className="flex items-center border border-slate-200 rounded-lg bg-white shadow-2xs">
                 <button
                   type="button"
                   onClick={handleDecrease}
                   disabled={quantity <= 1}
-                  className="p-2.5 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="py-1 px-2.5 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   aria-label="Diminuer la quantité"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="w-12 text-center font-extrabold text-sm text-slate-900">
+                <span className="w-8 text-center font-bold text-xs text-slate-900">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncrease}
                   disabled={quantity >= maxStock}
-                  className="p-2.5 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="py-1 px-2.5 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   aria-label="Augmenter la quantité"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -535,18 +508,18 @@ export default function ProductDetailClient({
             {/* BOUTON PRINCIPAL : COMMANDER SUR WHATSAPP */}
             <button
               onClick={handleOrderWhatsApp}
-              className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white py-4 px-6 rounded-2xl text-base font-extrabold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+              className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all"
             >
-              <MessageCircle className="w-6 h-6 fill-white" />
+              <MessageCircle className="w-4 h-4 fill-white" />
               COMMANDER SUR WHATSAPP
             </button>
 
             {/* BOUTON AJOUTER AU PANIER */}
             <button
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 py-3.5 px-6 rounded-2xl text-sm font-bold border border-brand-200 transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-brand-200 transition-colors"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-4 h-4" />
               Ajouter au panier (plusieurs articles)
             </button>
           </div>

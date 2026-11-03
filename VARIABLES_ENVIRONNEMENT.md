@@ -67,3 +67,4 @@ Sélectionnez les environnements : **Production**, **Preview**, et éventuelleme
    * Cochez **Production**, **Preview**, **Development**
    * Cliquez sur **Save**.
 5. Une fois toutes les variables ajoutées, lancez un nouveau déploiement (**Deployments** > **Redeploy**) pour que Vercel applique ces paramètres.
+

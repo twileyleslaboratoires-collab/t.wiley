@@ -19,33 +19,6 @@ import FlagIcon from '@/components/FlagIcon';
 import { Product, Category, CompanyInfo } from '@/types';
 import { formatPriceFCFA } from '@/lib/whatsapp';
 
-// Liste des pays africains pour le défilement des drapeaux (en commençant impérativement par la Côte d'Ivoire)
-const AFRICAN_COUNTRIES = [
-  { name: "Côte d'Ivoire", flag: '🇨🇮', code: 'ci' },
-  { name: 'Sénégal', flag: '🇸🇳', code: 'sn' },
-  { name: 'Mali', flag: '🇲🇱', code: 'ml' },
-  { name: 'Burkina Faso', flag: '🇧🇫', code: 'bf' },
-  { name: 'Guinée', flag: '🇬🇳', code: 'gn' },
-  { name: 'Ghana', flag: '🇬🇭', code: 'gh' },
-  { name: 'Togo', flag: '🇹🇬', code: 'tg' },
-  { name: 'Bénin', flag: '🇧🇯', code: 'bj' },
-  { name: 'Cameroun', flag: '🇨🇲', code: 'cm' },
-  { name: 'Gabon', flag: '🇬🇦', code: 'ga' },
-  { name: 'Congo', flag: '🇨🇬', code: 'cg' },
-  { name: 'RD Congo', flag: '🇨🇩', code: 'cd' },
-  { name: 'Niger', flag: '🇳🇪', code: 'ne' },
-  { name: 'Tchad', flag: '🇹🇩', code: 'td' },
-  { name: 'Nigéria', flag: '🇳🇬', code: 'ng' },
-  { name: 'Mauritanie', flag: '🇲🇷', code: 'mr' },
-  { name: 'Maroc', flag: '🇲🇦', code: 'ma' },
-  { name: 'Algérie', flag: '🇩🇿', code: 'dz' },
-  { name: 'Tunisie', flag: '🇹🇳', code: 'tn' },
-  { name: 'Égypte', flag: '🇪🇬', code: 'eg' },
-  { name: 'Rwanda', flag: '🇷🇼', code: 'rw' },
-  { name: 'Kenya', flag: '🇰🇪', code: 'ke' },
-  { name: 'Afrique du Sud', flag: '🇿🇦', code: 'za' },
-];
-
 interface BoutiqueCatalogProps {
   initialProducts: Product[];
   categories: Category[];
@@ -193,16 +166,21 @@ export default function BoutiqueCatalog({
     <div className="pb-24">
       {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE VIVANTE COMPACTE ET SANS PARTIES SOMBRES INUTILES */}
       <section className="relative overflow-hidden border-b border-slate-800 min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] flex items-center justify-center">
-        {/* DRAPEAU DE L'AMÉRIQUE EN HAUT À DROITE DE L'IMAGE — AGRANDI & ANIMÉ SANS NUMÉRO */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-6 z-20">
+        {/* DRAPEAU DE L'AMÉRIQUE EN HAUT À DROITE — COMPACT SUR MOBILE POUR NE PAS TOUCHER L'ÉCRITURE */}
+        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-6 z-20">
           <div
-            className="inline-flex items-center gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-600/90 text-white shadow-2xl hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-600/90 text-white shadow-2xl hover:scale-105 transition-all"
             title="États-Unis d'Amérique"
           >
             <div className="animate-flag-wave flex items-center justify-center">
-              <FlagIcon code="us" size="2xl" />
+              <div className="sm:hidden">
+                <FlagIcon code="us" size="md" />
+              </div>
+              <div className="hidden sm:block">
+                <FlagIcon code="us" size="2xl" />
+              </div>
             </div>
-            <span className="text-sm sm:text-base font-black tracking-wider text-white">USA</span>
+            <span className="text-xs sm:text-base font-black tracking-wider text-white">USA</span>
           </div>
         </div>
 
@@ -221,8 +199,8 @@ export default function BoutiqueCatalog({
         {/* Voile doux dégradé garantissant le contraste optimal tout en maintenant l'image bien visible */}
         <div className="absolute inset-0 z-1 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/65" />
 
-        {/* ÉCRITURES SANS CARTE DE FOND (PROPORTIONNÉES ET PARFAITEMENT LISIBLES) */}
-        <div className="max-w-4xl mx-auto text-center relative z-10 w-full py-8 sm:py-12 px-4 sm:px-6">
+        {/* ÉCRITURES SANS CARTE DE FOND (AVEC MARGE HAUTE SUR MOBILE POUR ÉVITER TOUT CHEVAUCHEMENT AVEC LE DRAPEAU) */}
+        <div className="max-w-4xl mx-auto text-center relative z-10 w-full pt-16 pb-8 sm:py-12 px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-sm border border-brand-400/50 text-brand-300 text-xs font-bold tracking-wider uppercase mb-2.5 shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-brand-400 animate-pulse" />
             {currentCompanyInfo.name || 'Les Laboratoires T. Wiley'}
@@ -236,32 +214,6 @@ export default function BoutiqueCatalog({
           <p className="mt-2 text-xs sm:text-sm text-slate-100 max-w-2xl mx-auto font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
             Formulations certifiées, cosmétiques et solutions professionnelles répondant aux exigences professionnelles et internationales.
           </p>
-        </div>
-      </section>
-
-      {/* DÉFILEMENT DES DRAPEAUX DE L'AFRIQUE (AVEC LEURS VRAIS DRAPEAUX EN COMMENÇANT PAR LA CÔTE D'IVOIRE) */}
-      <section className="bg-slate-900 border-b border-slate-800 py-3.5 overflow-hidden shadow-inner relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-amber-400">
-            <span className="text-sm">🌍</span>
-            <span>Rayonnement & Distribution Panafricaine</span>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-            🇨🇮 Depuis la Côte d'Ivoire vers toute l'Afrique
-          </span>
-        </div>
-        <div className="relative w-full overflow-hidden">
-          <div className="animate-marquee flex items-center gap-3 sm:gap-4 py-1">
-            {[...AFRICAN_COUNTRIES, ...AFRICAN_COUNTRIES].map((country, idx) => (
-              <div
-                key={`${country.code}-${idx}`}
-                className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-800/90 border border-slate-700 text-xs text-slate-200 font-medium whitespace-nowrap hover:bg-slate-700 transition-colors shadow-xs"
-              >
-                <FlagIcon code={country.code} size="md" />
-                <span className="font-semibold text-slate-100">{country.name}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -305,43 +257,46 @@ export default function BoutiqueCatalog({
         </div>
       </section>
 
-      {/* SECTION COMMERCIALE : VALEURS / ASSURANCES CLIENT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600">
-              <CheckCircle className="w-5 h-5" />
+      {/* SECTION COMMERCIALE : VALEURS / ASSURANCES CLIENT (DÉFILEMENT PAR PETITES CARTES SUR MOBILE) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+        <div className="flex overflow-x-auto scrollbar-none snap-x snap-mandatory gap-2.5 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 sm:pb-0">
+          <div className="flex-shrink-0 w-[170px] sm:w-auto snap-start bg-white p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-2.5 sm:gap-3.5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0">
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <p className="font-bold text-sm text-slate-900">Formules Certifiées</p>
-              <p className="text-xs text-slate-500">Qualité professionnelle garantie</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-slate-900">Livraison Réactive</p>
-              <p className="text-xs text-slate-500">Directement dans vos locaux</p>
+            <div className="min-w-0">
+              <p className="font-bold text-xs sm:text-sm text-slate-900 truncate">Formules Certifiées</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 truncate">Qualité professionnelle</p>
             </div>
           </div>
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
-              <PhoneCall className="w-5 h-5" />
+
+          <div className="flex-shrink-0 w-[170px] sm:w-auto snap-start bg-white p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-2.5 sm:gap-3.5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
+              <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <p className="font-bold text-sm text-slate-900">Commande WhatsApp</p>
-              <p className="text-xs text-slate-500">Simple, direct et sans intermédiaire</p>
+            <div className="min-w-0">
+              <p className="font-bold text-xs sm:text-sm text-slate-900 truncate">Livraison Réactive</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 truncate">Directement chez vous</p>
             </div>
           </div>
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-              <ShieldCheck className="w-5 h-5" />
+
+          <div className="flex-shrink-0 w-[170px] sm:w-auto snap-start bg-white p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-2.5 sm:gap-3.5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 flex-shrink-0">
+              <PhoneCall className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
-            <div>
-              <p className="font-bold text-sm text-slate-900">Paiement Sécurisé</p>
-              <p className="text-xs text-slate-500">À la réception de commande</p>
+            <div className="min-w-0">
+              <p className="font-bold text-xs sm:text-sm text-slate-900 truncate">Commande WhatsApp</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 truncate">Simple et direct</p>
+            </div>
+          </div>
+
+          <div className="flex-shrink-0 w-[170px] sm:w-auto snap-start bg-white p-2.5 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-2xs flex items-center gap-2.5 sm:gap-3.5">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 flex-shrink-0">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-xs sm:text-sm text-slate-900 truncate">Paiement Sécurisé</p>
+              <p className="text-[10px] sm:text-xs text-slate-500 truncate">À la réception</p>
             </div>
           </div>
         </div>

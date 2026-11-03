@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, MessageCircle, Menu, X, PhoneCall } from 'lucide-react';
-import FlagIcon from '@/components/FlagIcon';
+import { ShoppingBag, MessageCircle, Menu, X } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 import { CompanyInfo } from '@/types';
@@ -53,32 +52,6 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-      {/* Top micro banner for company status & quick contacts */}
-      <div className="bg-slate-900 text-slate-300 text-xs py-2 px-4">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-3">
-            <span className="font-medium text-slate-200">
-              ✨ {companyInfo?.slogan || 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique'}
-            </span>
-            <span className="text-slate-600 hidden md:inline">|</span>
-            <span className="text-emerald-400 font-semibold hidden md:inline">● Bouaké, Côte d'Ivoire</span>
-          </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-300 ml-auto">
-            <span className="flex items-center gap-1.5">
-              <PhoneCall className="w-3.5 h-3.5 text-brand-400" />
-              <span className="text-emerald-400 font-bold">🇨🇮 CI :</span>
-              <span>{companyInfo?.phone1 || '07 67 62 64 68'}</span>
-            </span>
-            <span className="text-slate-600">|</span>
-            {/* Drapeau des États-Unis d'Amérique à droite */}
-            <span className="inline-flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 px-2.5 py-0.5 rounded-full text-slate-100 font-semibold shadow-xs transition-colors" title="Contact États-Unis d'Amérique">
-              <FlagIcon code="us" size="sm" />
-              <span>USA : {companyInfo?.phoneUS || '+1 704 287 2551'}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo & Company Name (Extreme Left) */}

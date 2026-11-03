@@ -3,9 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MessageCircle, Phone, Mail, MapPin, Clock, Globe } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Globe } from 'lucide-react';
 import { CompanyInfo } from '@/types';
-import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 
 interface FooterProps {
   companyInfo: CompanyInfo;
@@ -19,12 +18,10 @@ export default function Footer({ companyInfo }: FooterProps) {
     return null;
   }
 
-  const whatsappClean = sanitizeWhatsAppNumber(companyInfo?.whatsappNumber || '2250767626468');
-
   return (
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           {/* Col 1: Entreprise & Logo Officiel */}
           <div>
             <div className="flex items-center gap-3 mb-4">
@@ -131,28 +128,6 @@ export default function Footer({ companyInfo }: FooterProps) {
                 <span>{companyInfo?.openingHours}</span>
               </li>
             </ul>
-          </div>
-
-          {/* Col 4: Action WhatsApp & Service Commercial */}
-          <div>
-            <h4 className="text-white font-bold text-xs tracking-wider uppercase mb-4 border-b border-slate-800 pb-2">
-              Commandes WhatsApp
-            </h4>
-            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              Une question ou une commande de gros volume ? Contactez directement nos conseillers.
-            </p>
-            <a
-              href={`https://api.whatsapp.com/send?phone=${whatsappClean}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-xl text-xs font-bold shadow-md transition-all hover:scale-[1.02]"
-            >
-              <MessageCircle className="w-4 h-4 fill-white" />
-              Écrire sur WhatsApp (+{whatsappClean})
-            </a>
-            <div className="mt-3 text-[11px] text-slate-500 text-center">
-              Bouaké • Abidjan • Expéditions Régionales & Internationales
-            </div>
           </div>
         </div>
 
