@@ -30,16 +30,26 @@ export default function GestionnaireChatPage() {
 
   const fetchConversations = async () => {
     try {
-      const res = await fetch('/api/chat');
+      const res = await fetch(`/api/chat?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
-        const data = await res.json();
-        setConversations(Array.isArray(data) ? data : []);
-        setSelectedConvId((current) => {
-          if (!current && Array.isArray(data) && data.length > 0) {
-            return data[0].id;
-          }
-          return current;
-        });
+        const data: ChatConversation[] = await res.json();
+        if (Array.isArray(data)) {
+          setConversations((prev) => {
+            // Comparer pour éviter les re-renders inutiles
+            const isDiff =
+              data.length !== prev.length ||
+              JSON.stringify(data.map((c) => ({ id: c.id, count: c.messages.length, up: c.updatedAt }))) !==
+                JSON.stringify(prev.map((c) => ({ id: c.id, count: c.messages.length, up: c.updatedAt })));
+            return isDiff ? data : prev;
+          });
+
+          setSelectedConvId((current) => {
+            if (!current && data.length > 0) {
+              return data[0].id;
+            }
+            return current;
+          });
+        }
       }
     } catch (err) {
       console.error(err);
@@ -50,7 +60,11 @@ export default function GestionnaireChatPage() {
 
   useEffect(() => {
     fetchConversations();
-    const interval = setInterval(fetchConversations, 5000);
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        fetchConversations();
+      }
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -69,29 +83,72 @@ export default function GestionnaireChatPage() {
   }, [selectedConvId, selectedConv?.messages?.length]);
 
   const handleSendReply = async () => {
-    if (!replyText.trim() || !selectedConvId || sending) return;
+    const textToSend = replyText.trim();
+    if (!textToSend || !selectedConvId || sending) return;
 
     setSending(true);
+    setReplyText('');
+
+    // Message optimiste affiché instantanément dans la fenêtre du gestionnaire
+    const tempMsgId = `temp-reply-${Date.now()}`;
+    const nowIso = new Date().toISOString();
+    const optimisticMsg = {
+      id: tempMsgId,
+      sender: 'agent' as const,
+      senderName: 'Vous (Gestionnaire T. Wiley)',
+      text: textToSend,
+      timestamp: nowIso,
+      status: 'sending' as const,
+    };
+
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === selectedConvId) {
+          return {
+            ...c,
+            updatedAt: nowIso,
+            messages: [...c.messages, optimisticMsg],
+          };
+        }
+        return c;
+      })
+    );
+
+    if (chatContainerRef.current) {
+      setTimeout(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      }, 50);
+    }
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify({
           conversationId: selectedConvId,
-          text: replyText.trim(),
+          text: textToSend,
           sender: 'agent',
         }),
       });
 
       if (res.ok) {
-        setReplyText('');
-        fetchConversations();
+        const data = await res.json();
+        if (data.conversation) {
+          setConversations((prev) =>
+            prev.map((c) => (c.id === selectedConvId ? data.conversation : c))
+          );
+        }
         showToast('Réponse envoyée au client.', 'success');
       } else {
         showToast('Erreur lors de l’envoi de la réponse.', 'error');
+        setReplyText(textToSend);
       }
     } catch {
       showToast('Erreur réseau.', 'error');
+      setReplyText(textToSend);
     } finally {
       setSending(false);
     }

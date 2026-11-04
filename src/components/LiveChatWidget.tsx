@@ -1,20 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   MessageSquare,
   X,
   Send,
-  Sparkles,
-  ShieldCheck,
-  ShoppingBag,
-  ExternalLink,
-  ChevronDown,
   User,
   Headphones,
+  RotateCw,
+  AlertCircle,
 } from 'lucide-react';
 import { ChatConversation, ChatMessage } from '@/types';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 interface LiveChatWidgetProps {
@@ -36,43 +32,73 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
   const [customerName, setCustomerName] = useState('');
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const conversationRef = useRef<ChatConversation | null>(null);
+  conversationRef.current = conversation;
 
-  // Défilement automatique vers le bas UNIQUEMENT dans le conteneur du chat (sans toucher à la page)
-  const scrollToBottom = () => {
+  // Défilement automatique doux vers le bas dans la boîte de dialogue
+  const scrollToBottom = useCallback((smooth = true) => {
     if (chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+      chatScrollRef.current.scrollTo({
+        top: chatScrollRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
     }
-  };
+  }, []);
+
+  // 1. Initialisation : chargement depuis le cache local pour un affichage instantané
   useEffect(() => {
-    const savedConvId = typeof window !== 'undefined' ? localStorage.getItem('twiley_chat_conv_id') : null;
-    const savedName = typeof window !== 'undefined' ? localStorage.getItem('twiley_chat_user_name') : null;
+    if (typeof window === 'undefined') return;
+
+    const savedConvId = localStorage.getItem('twiley_chat_conv_id');
+    const savedName = localStorage.getItem('twiley_chat_user_name');
     if (savedName) setCustomerName(savedName);
 
+    // Charger les messages pré-mis en cache pour zéro latence
     if (savedConvId) {
-      fetch(`/api/chat?conversationId=${savedConvId}`)
-        .then((res) => {
-          if (res.ok) return res.json();
-          return null;
-        })
+      try {
+        const cached = localStorage.getItem(`twiley_chat_cache_${savedConvId}`);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && Array.isArray(parsed.messages)) {
+            setConversation(parsed);
+          }
+        }
+      } catch {
+        // Ignorer
+      }
+
+      // Synchroniser avec le serveur
+      fetch(`/api/chat?conversationId=${encodeURIComponent(savedConvId)}&_t=${Date.now()}`, {
+        cache: 'no-store',
+      })
+        .then((res) => (res.ok ? res.json() : null))
         .then((data: ChatConversation | null) => {
           if (data && data.id) {
             setConversation(data);
+            try {
+              localStorage.setItem(`twiley_chat_cache_${data.id}`, JSON.stringify(data));
+            } catch {
+              // Ignorer
+            }
           }
         })
         .catch(() => {});
     }
   }, []);
 
+  // 2. Défilement automatique au chargement ou lors d'un nouveau message
   useEffect(() => {
     if (isOpen) {
-      scrollToBottom();
+      const timer = setTimeout(() => scrollToBottom(false), 50);
       setUnreadCount(0);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, conversation?.messages?.length]);
+  }, [isOpen, conversation?.messages?.length, scrollToBottom]);
 
-  // Polling temps réel quand la fenêtre de chat est ouverte
+  // 3. Polling intelligent anti-scintillement
   useEffect(() => {
     if (!isOpen || !conversation?.id) {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
@@ -80,65 +106,130 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
     }
 
     const poll = async () => {
+      // Éviter de poll si l'onglet est masqué
+      if (typeof document !== 'undefined' && document.hidden) return;
+
+      const currentConv = conversationRef.current;
+      if (!currentConv?.id) return;
+
       try {
-        const res = await fetch(`/api/chat?conversationId=${conversation.id}`);
+        const res = await fetch(`/api/chat?conversationId=${encodeURIComponent(currentConv.id)}&_t=${Date.now()}`, {
+          cache: 'no-store',
+        });
+
         if (res.ok) {
           const fresh: ChatConversation = await res.json();
-          if (fresh && fresh.messages) {
-            setConversation(fresh);
+          if (fresh && Array.isArray(fresh.messages)) {
+            const currentMsgs = currentConv.messages || [];
+            // Ne mettre à jour le state QUE s'il y a un réel changement pour éviter de désactiver l'input
+            const isDiff =
+              fresh.messages.length !== currentMsgs.length ||
+              fresh.updatedAt !== currentConv.updatedAt ||
+              (fresh.messages.length > 0 &&
+                fresh.messages[fresh.messages.length - 1].id !== currentMsgs[currentMsgs.length - 1]?.id);
+
+            if (isDiff) {
+              setConversation(fresh);
+              try {
+                localStorage.setItem(`twiley_chat_cache_${fresh.id}`, JSON.stringify(fresh));
+              } catch {
+                // Toléré
+              }
+            }
           }
         }
       } catch {
-        // Ignorer
+        // En cas d'aléa réseau temporaire, maintenir l'affichage local sans crasher
       }
     };
 
-    pollIntervalRef.current = setInterval(poll, 3000);
+    pollIntervalRef.current = setInterval(poll, 3500);
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
   }, [isOpen, conversation?.id]);
 
-  // Interception du bouton retour du téléphone pour fermer le chat sans quitter le site
+  // 4. Gestion douce du bouton retour mobile
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!isOpen) return;
+    if (typeof window === 'undefined' || !isOpen) return;
 
+    let pushed = false;
     try {
-      window.history.pushState({ ...window.history.state, chatOpen: true }, '');
+      window.history.pushState({ twileyChatOpen: true }, '');
+      pushed = true;
     } catch {
       // Ignorer
     }
 
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
       setIsOpen(false);
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      if (pushed && window.history.state?.twileyChatOpen) {
+        try {
+          window.history.back();
+        } catch {
+          // Ignorer
+        }
+      }
     };
   }, [isOpen]);
 
   const handleCloseChat = () => {
     setIsOpen(false);
-    if (typeof window !== 'undefined' && window.history.state?.chatOpen) {
-      window.history.back();
-    }
   };
 
+  // 5. Envoi avec mise à jour optimiste immédiate (affiché à la seconde 0)
   const handleSendMessage = async (textToSend?: string) => {
     const msg = (textToSend || inputText).trim();
     if (!msg || loading) return;
 
-    setLoading(true);
+    const currentConv = conversationRef.current;
+    const convId = currentConv?.id || (typeof window !== 'undefined' ? localStorage.getItem('twiley_chat_conv_id') : null);
+
+    // Message optimiste affiché instantanément
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`;
+    const nowIso = new Date().toISOString();
+    const optimisticMsg: ChatMessage = {
+      id: tempId,
+      sender: 'client',
+      senderName: customerName.trim() || 'Vous',
+      text: msg,
+      timestamp: nowIso,
+      status: 'sending',
+    };
+
+    // Mettre à jour l'état local immédiatement
+    setConversation((prev) => {
+      if (!prev) {
+        return {
+          id: convId || 'conv-pending',
+          customerName: customerName.trim() || 'Client',
+          createdAt: nowIso,
+          updatedAt: nowIso,
+          status: 'active',
+          messages: [optimisticMsg],
+        };
+      }
+      return {
+        ...prev,
+        updatedAt: nowIso,
+        messages: [...prev.messages, optimisticMsg],
+      };
+    });
+
     setInputText('');
+    setLoading(true);
+    setTimeout(() => scrollToBottom(true), 40);
 
     try {
-      const convId = conversation?.id || (typeof window !== 'undefined' ? localStorage.getItem('twiley_chat_conv_id') : null);
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
         body: JSON.stringify({
           conversationId: convId || undefined,
           text: msg,
@@ -153,28 +244,39 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
           setConversation(data.conversation);
           if (typeof window !== 'undefined') {
             localStorage.setItem('twiley_chat_conv_id', data.conversation.id);
+            localStorage.setItem(`twiley_chat_cache_${data.conversation.id}`, JSON.stringify(data.conversation));
             if (customerName.trim()) {
               localStorage.setItem('twiley_chat_user_name', customerName.trim());
             }
           }
         }
       } else {
-        // En cas d'erreur de communication, restituer le message pour ne pas le perdre
-        setInputText(msg);
+        // Marquer le message comme en échec
+        setConversation((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            messages: prev.messages.map((m) => (m.id === tempId ? { ...m, status: 'error' } : m)),
+          };
+        });
       }
     } catch (err) {
       console.error('Erreur chat:', err);
-      setInputText(msg);
+      setConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: prev.messages.map((m) => (m.id === tempId ? { ...m, status: 'error' } : m)),
+        };
+      });
     } finally {
       setLoading(false);
+      setTimeout(() => scrollToBottom(true), 40);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSendMessage();
-    }
+  const handleRetryMessage = (failedText: string) => {
+    handleSendMessage(failedText);
   };
 
   // Ne pas afficher le widget flottant dans l'espace administration / gestionnaire
@@ -183,7 +285,13 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
   }
 
   return (
-    <div className={`fixed z-50 ${isOpen ? 'inset-x-3 bottom-3 top-14 sm:inset-auto sm:bottom-6 sm:left-6' : 'bottom-6 left-6'}`}>
+    <div
+      className={`fixed z-50 transition-all duration-200 ${
+        isOpen
+          ? 'inset-x-2 bottom-2 top-14 sm:inset-auto sm:bottom-6 sm:left-6 sm:top-auto'
+          : 'bottom-6 left-6'
+      }`}
+    >
       {/* BOUTON FLOTTANT D'OUVERTURE DU CHAT EN DIRECT */}
       {!isOpen && (
         <button
@@ -217,11 +325,11 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
 
       {/* BOÎTE DE DIALOGUE DU CHAT EN DIRECT */}
       {isOpen && (
-        <div className="w-full sm:w-[380px] h-full sm:h-[520px] max-h-[85vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-full sm:w-[380px] h-full sm:h-[540px] max-h-[calc(100dvh-4.5rem)] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* En-tête du Chat */}
-          <div className="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+          <div className="bg-slate-900 text-white p-3.5 sm:p-4 flex items-center justify-between border-b border-slate-800 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-600 flex items-center justify-center text-white shadow-xs relative">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-brand-600 flex items-center justify-center text-white shadow-xs relative flex-shrink-0">
                 <Headphones className="w-5 h-5" />
                 <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900" />
               </div>
@@ -269,7 +377,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
               </div>
             </div>
 
-            {/* Questions rapides suggérées au client */}
+            {/* Questions fréquentes suggérées si la discussion débute */}
             {(!conversation || conversation.messages.length <= 1) && (
               <div className="pt-1 pb-2 space-y-1.5">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -293,6 +401,9 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
             {/* Historique des messages */}
             {conversation?.messages?.map((msg) => {
               const isClient = msg.sender === 'client';
+              const isSending = msg.status === 'sending';
+              const isError = msg.status === 'error';
+
               return (
                 <div
                   key={msg.id}
@@ -304,11 +415,13 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] p-3 rounded-2xl shadow-2xs ${
+                    className={`max-w-[85%] p-3 rounded-2xl shadow-2xs transition-opacity ${
                       isClient
-                        ? 'bg-brand-700 text-white rounded-tr-xs'
+                        ? isError
+                          ? 'bg-rose-50 border border-rose-300 text-rose-900 rounded-tr-xs'
+                          : 'bg-brand-700 text-white rounded-tr-xs'
                         : 'bg-white text-slate-800 border border-slate-200 rounded-tl-xs'
-                    }`}
+                    } ${isSending ? 'opacity-70' : 'opacity-100'}`}
                   >
                     {!isClient && (
                       <p className="text-[10px] font-bold text-brand-700 mb-0.5">
@@ -316,16 +429,36 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
                       </p>
                     )}
                     <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
-                    <span
-                      className={`text-[9px] block mt-1 ${
-                        isClient ? 'text-brand-200 text-right' : 'text-slate-400 text-left'
-                      }`}
-                    >
-                      {new Date(msg.timestamp).toLocaleTimeString('fr-FR', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                    <div className="flex items-center justify-end gap-1.5 mt-1">
+                      <span
+                        className={`text-[9px] ${
+                          isClient
+                            ? isError
+                              ? 'text-rose-600'
+                              : 'text-brand-200'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        {new Date(msg.timestamp).toLocaleTimeString('fr-FR', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      {isSending && (
+                        <RotateCw className="w-2.5 h-2.5 animate-spin text-brand-200" />
+                      )}
+                      {isError && (
+                        <button
+                          type="button"
+                          onClick={() => handleRetryMessage(msg.text)}
+                          className="flex items-center gap-1 text-[9px] font-bold text-rose-700 underline"
+                          title="Réessayer d'envoyer"
+                        >
+                          <AlertCircle className="w-2.5 h-2.5 text-rose-600" />
+                          <span>Réessayer</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {isClient && (
                     <div className="w-7 h-7 rounded-xl bg-slate-800 text-white flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-2xs mt-0.5">
@@ -337,13 +470,13 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
             })}
           </div>
 
-          {/* Champ de saisie et bouton d'envoi avec formulaire accessible */}
+          {/* Formulaire de saisie et bouton d'envoi */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
             }}
-            className="p-3 bg-white border-t border-slate-200"
+            className="p-2.5 sm:p-3 bg-white border-t border-slate-200 flex-shrink-0"
           >
             <div className="flex items-center gap-2">
               <input
@@ -352,7 +485,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Posez votre question à notre conseiller..."
                 disabled={loading}
-                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
+                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm sm:text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-all"
               />
               <button
                 type="submit"
@@ -370,4 +503,3 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
     </div>
   );
 }
-

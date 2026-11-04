@@ -131,6 +131,7 @@ export interface ChatMessage {
   senderName?: string;
   text: string;
   timestamp: string;
+  status?: 'sending' | 'sent' | 'error';
 }
 
 export interface ChatConversation {
