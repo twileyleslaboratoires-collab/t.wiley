@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Layers, X, Image as ImageIcon, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Layers, X, Image as ImageIcon, Upload, RefreshCw } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import MediaUploader from '@/components/admin/MediaUploader';
 import { Category } from '@/types';
@@ -15,8 +15,9 @@ export default function AdminCategoriesPage() {
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
     id: '',
@@ -26,34 +27,6 @@ export default function AdminCategoriesPage() {
     image: '',
     order: 1,
   });
-
-  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      const data = new FormData();
-      data.append('file', file);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: data,
-      });
-
-      const result = await res.json();
-      if (res.ok && result.url) {
-        setFormData((prev) => ({ ...prev, image: result.url }));
-        showToast('Image de catégorie importée !', 'success');
-      } else {
-        showToast(result.error || 'Erreur lors de l’envoi de l’image.', 'error');
-      }
-    } catch {
-      showToast('Erreur lors du téléversement.', 'error');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
 
   const loadCategories = () => {
     setLoading(true);
@@ -96,8 +69,10 @@ export default function AdminCategoriesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
 
     try {
+      setIsSaving(true);
       if (editingCategory) {
         const res = await fetch('/api/categories', {
           method: 'PUT',
@@ -108,6 +83,9 @@ export default function AdminCategoriesPage() {
           showToast('Catégorie mise à jour !', 'success');
           setIsModalOpen(false);
           loadCategories();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || 'Erreur lors de la mise à jour.', 'error');
         }
       } else {
         const res = await fetch('/api/categories', {
@@ -119,24 +97,40 @@ export default function AdminCategoriesPage() {
           showToast('Nouvelle catégorie créée !', 'success');
           setIsModalOpen(false);
           loadCategories();
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showToast(data.error || 'Erreur lors de la création.', 'error');
         }
       }
     } catch {
       showToast('Erreur lors de la sauvegarde.', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = async (cat: Category) => {
-    if (confirm(`Voulez-vous vraiment supprimer la catégorie "${cat.name}" ?`)) {
-      try {
-        const res = await fetch(`/api/categories?id=${cat.id}`, { method: 'DELETE' });
-        if (res.ok) {
-          showToast('Catégorie supprimée.', 'success');
-          loadCategories();
-        }
-      } catch {
-        showToast('Erreur suppression.', 'error');
+  const handleDelete = (cat: Category) => {
+    setCategoryToDelete(cat);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!categoryToDelete || isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/categories?id=${categoryToDelete.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast(`Catégorie "${categoryToDelete.name}" supprimée.`, 'success');
+        setCategoryToDelete(null);
+        loadCategories();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || 'Erreur lors de la suppression.', 'error');
       }
+    } catch {
+      showToast('Erreur suppression.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -208,23 +202,26 @@ export default function AdminCategoriesPage() {
           ))}
         </div>
 
-        {/* Modal */}
+        {/* Modal Ajout / Modification Catégorie avec Hauteur adaptative et Défilement fluide */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <h3 className="text-xl font-black text-slate-900">
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-auto">
+              {/* Entête fixe */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900">
                   {editingCategory ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
                 </h3>
                 <button
+                  type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 text-slate-400 hover:text-slate-800 rounded-lg"
+                  className="p-2 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              {/* Corps défilable */}
+              <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Nom de la catégorie *</label>
                   <input
@@ -245,7 +242,7 @@ export default function AdminCategoriesPage() {
                       });
                     }}
                     placeholder="Ex : Lessives & Blanchisserie"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 font-semibold text-slate-900"
                   />
                 </div>
 
@@ -257,7 +254,7 @@ export default function AdminCategoriesPage() {
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                     placeholder="ex: lessives-blanchisserie"
-                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 font-mono"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-500 font-mono text-xs"
                   />
                 </div>
 
@@ -283,22 +280,78 @@ export default function AdminCategoriesPage() {
                   />
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                {/* Pied de formulaire toujours visible et accessible */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3 sticky bottom-0 bg-white">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50"
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-colors"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-md"
+                    disabled={isSaving}
+                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold shadow-md transition-all flex items-center gap-2"
                   >
-                    Enregistrer
+                    {isSaving ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Enregistrement...</span>
+                      </>
+                    ) : (
+                      editingCategory ? 'Enregistrer les modifications' : 'Créer la catégorie'
+                    )}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL DE CONFIRMATION DE SUPPRESSION DE CATÉGORIE CENTRÉ */}
+        {categoryToDelete && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 text-center animate-in fade-in zoom-in-95">
+              <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center mb-4">
+                <Trash2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-black text-slate-900 mb-2">
+                Supprimer cette catégorie ?
+              </h3>
+              <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                Êtes-vous sûr de vouloir supprimer définitivement la catégorie{' '}
+                <strong className="text-slate-800">"{categoryToDelete.name}"</strong> ?
+                Cette action retirera la catégorie de la boutique.
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => !isDeleting && setCategoryToDelete(null)}
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteCategory}
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition-all flex items-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Suppression...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Supprimer définitivement</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
