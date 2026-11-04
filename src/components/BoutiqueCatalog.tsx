@@ -179,7 +179,7 @@ export default function BoutiqueCatalog({
   };
 
   return (
-    <div className="pb-24">
+    <div className="pb-4 sm:pb-8">
       {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE VIVANTE COMPACTE ET SANS PARTIES SOMBRES INUTILES */}
       <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center">
         {/* DRAPEAU DE L'AMÉRIQUE EN HAUT À DROITE — COMPACT SUR MOBILE POUR NE PAS TOUCHER L'ÉCRITURE */}
@@ -336,9 +336,9 @@ export default function BoutiqueCatalog({
       </section>
 
       {/* SECTION CATALOGUE PLEINE LARGEUR AVEC BARRE DE RECHERCHE ET FILTRES INTÉGRÉS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        {/* BARRE HORIZONTALE UNIFIÉE : RECHERCHE + SÉLECTEUR DE CATÉGORIES + TRI + PILLS */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs mb-6 space-y-3.5">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
+        {/* BARRE HORIZONTALE UNIFIÉE : RECHERCHE + SÉLECTEUR DE CATÉGORIES + TRI */}
+        <div className="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs mb-6">
           <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
             {/* 1. CHAMP DE RECHERCHE PRINCIPAL */}
             <div className="relative flex-1">
@@ -400,51 +400,6 @@ export default function BoutiqueCatalog({
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Effacer</span>
                 </button>
-              )}
-            </div>
-          </div>
-
-          {/* 3. FILTRES RAPIDES PAR BADGES / PILLS DE CATÉGORIES */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar text-xs">
-            <button
-              onClick={() => handleCategorySelect('all')}
-              className={`px-3 py-1.5 rounded-full font-semibold flex-shrink-0 transition-all ${selectedCategoryId === 'all'
-                  ? 'bg-brand-600 text-white shadow-2xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-            >
-              Tous ({products.length})
-            </button>
-            {currentCategories.map((cat) => {
-              const active = selectedCategoryId === cat.id;
-              const count = products.filter((p) => p.categoryId === cat.id).length;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategorySelect(cat.id)}
-                  className={`px-3 py-1.5 rounded-full font-semibold flex-shrink-0 transition-all ${active
-                      ? 'bg-brand-600 text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
-                >
-                  {cat.name} ({count})
-                </button>
-              );
-            })}
-          </div>
-
-          {/* COMPTEUR DE PRODUITS TROUVÉS */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <div>
-              <span className="font-bold text-slate-900">{sortedProducts.length}</span> produit(s)
-              disponible(s)
-              {selectedCategoryId !== 'all' && (
-                <span className="ml-2 font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md">
-                  {categories.find((c) => c.id === selectedCategoryId)?.name}
-                </span>
-              )}
-              {searchQuery && (
-                <span className="ml-2 text-slate-400">pour &ldquo;{searchQuery}&rdquo;</span>
               )}
             </div>
           </div>

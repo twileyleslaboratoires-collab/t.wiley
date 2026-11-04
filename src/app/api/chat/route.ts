@@ -10,29 +10,6 @@ function sanitizeText(str: string): string {
   return str.replace(/<[^>]*>?/gm, '').trim();
 }
 
-function getSmartAutoReply(text: string): string | null {
-  const t = text.toLowerCase();
-  if (t.includes('bonjour') || t.includes('salut') || t.includes('bonsoir') || t.includes('hello')) {
-    return "Bonjour et bienvenue aux Laboratoires T. Wiley ! 👋 Un conseiller clientèle a bien reçu votre message et va vous répondre sous peu. Comment pouvons-nous vous assister aujourd'hui ?";
-  }
-  if (t.includes('livraison') || t.includes('délai') || t.includes('delai') || t.includes('expedition') || t.includes('expédier')) {
-    return "🚚 Nos expéditions sont rapides : livraison express disponible à Abidjan et dans tout l'intérieur du pays (Bouaké, Yamoussoukro, San-Pedro, etc.). Les modalités précises sont convenues lors de la commande.";
-  }
-  if (t.includes('prix') || t.includes('tarif') || t.includes('coût') || t.includes('cout') || t.includes('combien')) {
-    return "💰 Tous nos tarifs sont affichés en FCFA sur le catalogue en ligne. Pour les achats en gros ou fûts industriels, nous proposons des tarifs dégressifs. Notre conseiller va vous détailler nos offres.";
-  }
-  if (t.includes('commander') || t.includes('commande') || t.includes('acheter') || t.includes('panier')) {
-    return "🛒 Pour commander, vous pouvez cliquer directement sur 'Commander via WhatsApp' sur n'importe quel produit ou dans votre panier. Notre équipe commerciale WhatsApp valide immédiatement votre commande !";
-  }
-  if (t.includes('adresse') || t.includes('bouaké') || t.includes('bouake') || t.includes('situé') || t.includes('situe') || t.includes('localisation')) {
-    return "📍 Notre siège et laboratoire sont situés à Bouaké, quartier France 1, Feu Pacha, Côte d'Ivoire. Nous desservons tout le territoire ivoirien et la sous-région.";
-  }
-  if (t.includes('fût') || t.includes('fut') || t.includes('20l') || t.includes('industriel') || t.includes('dégraissant') || t.includes('degraissant')) {
-    return "🏭 Nous disposons d'importants stocks permanents en fûts industriels de 20L et bidons techniques pour ateliers, garages, usines et collectivités.";
-  }
-  return null;
-}
-
 export async function GET(req: NextRequest) {
   try {
     const db = getDatabase();
@@ -199,26 +176,6 @@ export async function POST(req: NextRequest) {
     };
     conv.messages.push(userMsg);
 
-    let autoMsg: ChatMessage | null = null;
-
-    // Si nouveau client ou première question, réponse automatique
-    if (sender === 'client') {
-      const autoReplyText = isNew
-        ? "Bonjour et bienvenue aux Laboratoires T. Wiley ! 👋 Un conseiller clientèle a bien reçu votre message. Posez-nous votre question, nous sommes en ligne pour vous répondre."
-        : getSmartAutoReply(sanitizedText);
-
-      if (autoReplyText) {
-        autoMsg = {
-          id: `msg-auto-${Date.now()}`,
-          sender: 'agent',
-          senderName: 'Assistant T. Wiley',
-          text: autoReplyText,
-          timestamp: new Date(Date.now() + 500).toISOString(),
-        };
-        conv.messages.push(autoMsg);
-      }
-    }
-
     try {
       saveDatabase(db);
     } catch (saveErr) {
@@ -245,17 +202,6 @@ export async function POST(req: NextRequest) {
             text: userMsg.text,
             created_at: userMsg.timestamp,
           });
-
-          if (autoMsg) {
-            await supabase.from('chat_messages').insert({
-              id: autoMsg.id,
-              conversation_id: conv.id,
-              sender: autoMsg.sender,
-              sender_name: autoMsg.senderName,
-              text: autoMsg.text,
-              created_at: autoMsg.timestamp,
-            });
-          }
         }
       } catch (supaSyncErr) {
         console.warn('Erreur synchro Supabase chat (toléré):', supaSyncErr);
