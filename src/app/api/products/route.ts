@@ -119,7 +119,9 @@ export async function POST(request: Request) {
       stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 10,
       isPublished: body.isPublished !== undefined ? Boolean(body.isPublished) : true,
       isFeatured: Boolean(body.isFeatured),
-      characteristics: body.characteristics || [],
+      characteristics: Array.isArray(body.characteristics)
+        ? body.characteristics.filter((c: any) => c && (String(c.label || '').trim() || String(c.value || '').trim()))
+        : [],
       additionalInfo: body.additionalInfo || '',
       createdAt: now,
       updatedAt: now,

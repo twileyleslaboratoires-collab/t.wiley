@@ -80,11 +80,16 @@ export async function PUT(
       ? body.videos.filter(Boolean)
       : (body.videoUrl ? [body.videoUrl] : (existingProduct.videos || (existingProduct.videoUrl ? [existingProduct.videoUrl] : [])));
 
+    const updatedCharacteristics = Array.isArray(body.characteristics)
+      ? body.characteristics.filter((c: any) => c && (String(c.label || '').trim() || String(c.value || '').trim()))
+      : (existingProduct.characteristics || []);
+
     const now = new Date().toISOString();
     const updatedProduct: Product = {
       ...existingProduct,
       ...body,
       categoryName,
+      characteristics: updatedCharacteristics,
       videos: updatedVideos,
       videoUrl: updatedVideos[0] || body.videoUrl || existingProduct.videoUrl || '',
       price: body.price !== undefined ? Number(body.price) : existingProduct.price,
@@ -147,14 +152,14 @@ export async function DELETE(
     }
 
     const db = getDatabase();
-    db.products = db.products.filter((p) => p.id !== id);
+    db.products = db.products.filter((p) => p.id !== id && p.slug !== id);
     saveDatabase(db);
 
     if (isSupabaseConfigured()) {
       try {
         const supabase = getServiceSupabase();
         if (supabase) {
-          await supabase.from('products').delete().eq('id', id);
+          await supabase.from('products').delete().or(`id.eq.${id},slug.eq.${id}`);
         }
       } catch (supaErr) {
         console.warn('Erreur suppression Supabase products:', supaErr);
@@ -163,9 +168,12 @@ export async function DELETE(
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/categories', 'page');
+      revalidatePath('/produit/[slug]', 'page');
+      revalidatePath(`/produit/${id}`, 'page');
     } catch {}
 
-    return NextResponse.json({ success: true }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ success: true, deletedId: id }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     return NextResponse.json({ error: 'Erreur lors de la suppression.' }, { status: 500, headers: NO_CACHE_HEADERS });
   }

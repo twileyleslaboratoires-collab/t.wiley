@@ -140,20 +140,15 @@ export async function getLiveProducts(): Promise<Product[]> {
           .select('*')
           .order('created_at', { ascending: false });
 
-        if (!error && Array.isArray(data) && data.length > 0) {
+        if (!error && Array.isArray(data)) {
           const liveList: Product[] = [];
           for (const row of data) {
             const fallback = localMap.get(row.id);
             const prod = fromSupabaseProduct(row, fallback);
             liveList.push(prod);
-            localMap.delete(row.id);
           }
-          // Conserver aussi les éventuels produits locaux non synchronisés
-          Array.from(localMap.values()).forEach((remaining) => {
-            liveList.push(remaining);
-          });
 
-          // Mettre à jour le cache mémoire local
+          // Mettre à jour le cache mémoire local avec la liste exacte de Supabase
           db.products = liveList;
           return liveList;
         }
@@ -184,16 +179,20 @@ export async function getLiveProductBySlugOrId(slugOrId: string): Promise<Produc
           .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
           .maybeSingle();
 
-        if (!error && data) {
-          const liveProd = fromSupabaseProduct(data, localFallback);
-          // Mettre à jour dans le cache mémoire local pour cohérence
-          const idx = db.products.findIndex((p) => p.id === liveProd.id);
-          if (idx >= 0) {
-            db.products[idx] = liveProd;
-          } else {
-            db.products.push(liveProd);
+        if (!error) {
+          if (data) {
+            const liveProd = fromSupabaseProduct(data, localFallback);
+            // Mettre à jour dans le cache mémoire local pour cohérence
+            const idx = db.products.findIndex((p) => p.id === liveProd.id);
+            if (idx >= 0) {
+              db.products[idx] = liveProd;
+            } else {
+              db.products.push(liveProd);
+            }
+            return liveProd;
           }
-          return liveProd;
+          // Si Supabase a répondu avec succès et que le produit est introuvable, il a été supprimé
+          return null;
         }
       }
     } catch (err) {

@@ -48,6 +48,10 @@ export default function AdminProductsPage() {
   const multiFileInputRef = React.useRef<HTMLInputElement>(null);
   const multiVideoInputRef = React.useRef<HTMLInputElement>(null);
 
+  // État du modal de confirmation de suppression
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Formulaire
   const [formData, setFormData] = useState({
     name: '',
@@ -59,6 +63,7 @@ export default function AdminProductsPage() {
     packaging: '',
     shortDescription: '',
     fullDescription: '',
+    characteristics: [] as Array<{ label: string; value: string }>,
     mainImage: '',
     images: [] as string[],
     videoUrl: '',
@@ -98,6 +103,10 @@ export default function AdminProductsPage() {
       packaging: 'Bidon de 5 Litres',
       shortDescription: '',
       fullDescription: '',
+      characteristics: [
+        { label: 'Conditionnement', value: 'Bidon de 5 Litres' },
+        { label: 'Usage', value: '' },
+      ],
       mainImage:
         'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80',
       images: [],
@@ -117,6 +126,12 @@ export default function AdminProductsPage() {
       ? product.videos.filter(Boolean)
       : (product.videoUrl ? [product.videoUrl] : []);
 
+    const existingCharacteristics = Array.isArray(product.characteristics)
+      ? product.characteristics
+          .filter((c) => c && c.label && c.label !== '__tw_media__')
+          .map((c) => ({ label: c.label, value: c.value || '' }))
+      : [];
+
     setFormData({
       name: product.name,
       sku: product.sku || '',
@@ -127,6 +142,13 @@ export default function AdminProductsPage() {
       packaging: product.packaging,
       shortDescription: product.shortDescription,
       fullDescription: product.fullDescription,
+      characteristics:
+        existingCharacteristics.length > 0
+          ? existingCharacteristics
+          : [
+              { label: 'Conditionnement', value: product.packaging || '' },
+              { label: 'Usage', value: '' },
+            ],
       mainImage: product.mainImage,
       images: product.images || [],
       videoUrl: existingVideos[0] || product.videoUrl || '',
@@ -137,6 +159,28 @@ export default function AdminProductsPage() {
       isPublished: product.isPublished,
     });
     setIsModalOpen(true);
+  };
+
+  const handleAddCharacteristic = () => {
+    setFormData((prev) => ({
+      ...prev,
+      characteristics: [...prev.characteristics, { label: '', value: '' }],
+    }));
+  };
+
+  const handleRemoveCharacteristic = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      characteristics: prev.characteristics.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleCharacteristicChange = (index: number, field: 'label' | 'value', value: string) => {
+    setFormData((prev) => {
+      const copy = [...prev.characteristics];
+      copy[index] = { ...copy[index], [field]: value };
+      return { ...prev, characteristics: copy };
+    });
   };
 
   // Upload d'image produit unique
@@ -291,6 +335,14 @@ export default function AdminProductsPage() {
     if (isSaving) return;
 
     setIsSaving(true);
+    const cleanCharacteristics = formData.characteristics.filter(
+      (c) => c && (c.label.trim() || c.value.trim())
+    );
+    const payload = {
+      ...formData,
+      characteristics: cleanCharacteristics,
+    };
+
     try {
       if (editingProduct) {
         // Mise à jour
@@ -298,7 +350,7 @@ export default function AdminProductsPage() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           cache: 'no-store',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
 
         const result = await res.json().catch(() => ({}));
@@ -307,7 +359,7 @@ export default function AdminProductsPage() {
           showToast('Produit mis à jour avec succès !', 'success');
           // Mise à jour locale immédiate de la liste
           setProducts((prev) =>
-            prev.map((p) => (p.id === editingProduct.id ? (result.id ? result : { ...p, ...formData }) : p))
+            prev.map((p) => (p.id === editingProduct.id ? (result.id ? result : { ...p, ...payload }) : p))
           );
           setIsModalOpen(false);
           loadData();
@@ -320,7 +372,7 @@ export default function AdminProductsPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           cache: 'no-store',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
 
         const result = await res.json().catch(() => ({}));
@@ -364,21 +416,35 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Suppression
-  const handleDeleteProduct = async (product: Product) => {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement "${product.name}" ?`)) {
-      try {
-        const res = await fetch(`/api/products/${product.id}`, {
-          method: 'DELETE',
-        });
+  // Déclenchement de la suppression (ouvre le modal centré de confirmation)
+  const handleDeleteProduct = (product: Product) => {
+    setProductToDelete(product);
+  };
 
-        if (res.ok) {
-          showToast('Produit supprimé du catalogue.', 'success');
-          loadData();
-        }
-      } catch {
-        showToast('Erreur lors de la suppression.', 'error');
+  // Confirmation réelle de la suppression dans la base de données
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete || isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/products/${productToDelete.id}`, {
+        method: 'DELETE',
+        cache: 'no-store',
+      });
+
+      if (res.ok) {
+        showToast(`"${productToDelete.name}" supprimé définitivement du catalogue.`, 'success');
+        setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id && p.slug !== productToDelete.slug));
+        setProductToDelete(null);
+        loadData();
+      } else {
+        const result = await res.json().catch(() => ({}));
+        showToast(result.error || 'Erreur lors de la suppression.', 'error');
       }
+    } catch {
+      showToast('Erreur réseau lors de la suppression.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1024,6 +1090,65 @@ export default function AdminProductsPage() {
                   ></textarea>
                 </div>
 
+                {/* Caractéristiques techniques du produit */}
+                <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block font-bold text-slate-800 text-sm">
+                        Caractéristiques du produit
+                      </label>
+                      <p className="text-xs text-slate-500">
+                        Conditionnement, Usage, etc. affichés sur la fiche produit
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddCharacteristic}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold text-xs transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Ajouter une ligne
+                    </button>
+                  </div>
+
+                  {formData.characteristics.length === 0 ? (
+                    <div className="text-center py-4 bg-white rounded-xl border border-dashed border-slate-200">
+                      <p className="text-xs text-slate-400">
+                        Aucune caractéristique définie. Cliquez sur "+ Ajouter une ligne" pour en ajouter.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {formData.characteristics.map((char, cIdx) => (
+                        <div key={cIdx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Nom (ex: Conditionnement, Usage...)"
+                            value={char.label}
+                            onChange={(e) => handleCharacteristicChange(cIdx, 'label', e.target.value)}
+                            className="w-1/3 p-2.5 rounded-xl border border-slate-200 bg-white font-semibold text-xs focus:outline-none focus:border-brand-500"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Valeur (ex: 400 ML, Sols carrelés, etc.)"
+                            value={char.value}
+                            onChange={(e) => handleCharacteristicChange(cIdx, 'value', e.target.value)}
+                            className="flex-1 p-2.5 rounded-xl border border-slate-200 bg-white text-xs focus:outline-none focus:border-brand-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCharacteristic(cIdx)}
+                            className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            title="Supprimer cette ligne"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Boutons d'action */}
                 <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                   <button
@@ -1049,6 +1174,53 @@ export default function AdminProductsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL DE CONFIRMATION DE SUPPRESSION CENTRÉ & ÉLÉGANT */}
+        {productToDelete && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 text-center animate-in fade-in zoom-in-95">
+              <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center mb-4">
+                <Trash2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-lg font-black text-slate-900 mb-2">
+                Supprimer définitivement ce produit ?
+              </h3>
+              <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                Êtes-vous sûr de vouloir supprimer définitivement{' '}
+                <strong className="text-slate-800">"{productToDelete.name}"</strong> ?
+                Cette action est irréversible et retirera le produit immédiatement de la boutique et de la base de données.
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => !isDeleting && setProductToDelete(null)}
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteProduct}
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition-all flex items-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Suppression...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Supprimer définitivement</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

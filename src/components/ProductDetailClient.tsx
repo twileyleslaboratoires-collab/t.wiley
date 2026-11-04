@@ -366,18 +366,6 @@ export default function ProductDetailClient({
               ))}
             </div>
           )}
-
-          {/* Points de réassurance */}
-          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 text-xs text-slate-600">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>Qualité professionnelle garantie</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-brand-600 flex-shrink-0" />
-              <span>Livraison rapide à Abidjan & intérieur</span>
-            </div>
-          </div>
         </div>
 
         {/* INFORMATIONS COMMERCIALES (Droite sur Desktop, En-dessous sur Mobile) */}
