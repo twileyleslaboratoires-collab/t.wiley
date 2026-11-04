@@ -270,6 +270,66 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  if (!isUserAdmin()) {
+    return NextResponse.json({ error: 'Accès non autorisé.' }, { status: 403, headers: NO_CACHE_HEADERS });
+  }
+
+  try {
+    const url = new URL(req.url);
+    const conversationId = url.searchParams.get('conversationId');
+
+    const db = getDatabase();
+
+    if (conversationId) {
+      // Supprimer une conversation spécifique
+      if (Array.isArray(db.chatConversations)) {
+        db.chatConversations = db.chatConversations.filter((c) => c.id !== conversationId);
+        try {
+          saveDatabase(db);
+        } catch {}
+      }
+
+      if (isSupabaseConfigured()) {
+        try {
+          const supabase = getServiceSupabase();
+          if (supabase) {
+            await supabase.from('chat_messages').delete().eq('conversation_id', conversationId);
+            await supabase.from('chat_conversations').delete().eq('id', conversationId);
+          }
+        } catch (e) {
+          console.warn('Erreur suppression conversation Supabase:', e);
+        }
+      }
+
+      return NextResponse.json({ success: true, deleted: conversationId }, { headers: NO_CACHE_HEADERS });
+    } else {
+      // Supprimer TOUTES les conversations (nettoyage complet)
+      db.chatConversations = [];
+      try {
+        saveDatabase(db);
+      } catch {}
+
+      if (isSupabaseConfigured()) {
+        try {
+          const supabase = getServiceSupabase();
+          if (supabase) {
+            await supabase.from('chat_messages').delete().neq('id', 'placeholder_none');
+            await supabase.from('chat_conversations').delete().neq('id', 'placeholder_none');
+          }
+        } catch (e) {
+          console.warn('Erreur vidage complet chat Supabase:', e);
+        }
+      }
+
+      return NextResponse.json({ success: true, allDeleted: true }, { headers: NO_CACHE_HEADERS });
+    }
+  } catch (error) {
+    console.error('Erreur DELETE /api/chat:', error);
+    return NextResponse.json({ error: 'Erreur lors de la suppression.' }, { status: 500, headers: NO_CACHE_HEADERS });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

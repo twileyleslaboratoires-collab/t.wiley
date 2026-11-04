@@ -9,6 +9,7 @@ import {
   Clock,
   RefreshCw,
   Search,
+  Trash2,
 } from 'lucide-react';
 import { ChatConversation } from '@/types';
 import { useToast } from '@/context/ToastContext';
@@ -240,6 +241,33 @@ export default function GestionnaireChatPage() {
     }
   };
 
+  const handleDeleteConversation = async (convId: string) => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cette conversation ?')) return;
+
+    try {
+      const res = await fetch(`/api/chat?conversationId=${encodeURIComponent(convId)}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        showToast('Conversation supprimée avec succès.', 'info');
+        setConversations((prev) => prev.filter((c) => c.id !== convId));
+        if (selectedConvId === convId) {
+          setSelectedConvId(null);
+        }
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem(`twiley_admin_read_${convId}`);
+          } catch {}
+          window.dispatchEvent(new CustomEvent('twiley_chat_read', { detail: { conversationId: convId } }));
+        }
+      } else {
+        showToast('Erreur lors de la suppression.', 'error');
+      }
+    } catch {
+      showToast('Erreur réseau lors de la suppression.', 'error');
+    }
+  };
+
   const filteredConversations = conversations.filter((c) => {
     const q = searchQuery.toLowerCase();
     return (
@@ -303,7 +331,7 @@ export default function GestionnaireChatPage() {
             <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
               {filteredConversations.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 text-xs">
-                  Aucune conversation pour le moment.
+                  Aucune conversation pour le moment. Les nouveaux messages envoyés par les clients apparaîtront ici.
                 </div>
               ) : (
                 filteredConversations.map((conv) => {
@@ -392,9 +420,19 @@ export default function GestionnaireChatPage() {
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    🟢 En direct
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      🟢 En direct
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteConversation(selectedConv.id)}
+                      className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors"
+                      title="Supprimer cette discussion"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Fil des messages */}
