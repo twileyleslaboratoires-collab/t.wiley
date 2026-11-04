@@ -163,14 +163,18 @@ export function verifyAdminLogin(email?: string, password?: string): boolean {
   if (!isPasswordValid) return false;
 
   const envEmail = (process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL).toLowerCase().trim();
+  const dbEmail = (creds.email || '').toLowerCase().trim();
 
   // Si un email est fourni dans le formulaire de connexion, vérifier la correspondance
+  // avec souplesse sur les fautes de frappe de domaine (ex: .co au lieu de .com)
   if (email && email.trim() !== '') {
     const normEmail = email.trim().toLowerCase();
     const isEmailValid =
       normEmail === envEmail ||
-      normEmail === (creds.email || '').toLowerCase().trim() ||
-      normEmail === 'twileyleslaboratoires@gmail.com' ||
+      normEmail === dbEmail ||
+      normEmail.startsWith('twileyleslaboratoires@') ||
+      normEmail.includes('twileyleslaboratoires') ||
+      normEmail.includes('laboratoires-twiley') ||
       normEmail === DEFAULT_ADMIN_EMAIL.toLowerCase() ||
       normEmail === 'admin';
 

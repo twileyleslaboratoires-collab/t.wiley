@@ -997,7 +997,7 @@
   },
   "adminCredentials": {
     "email": "twileyleslaboratoires@gmail.com",
-    "password": "scrypt:c568d26b77c64f537a321d7563c1e368:0068e516ee545e44892782ea53b53d8cbff0927884776c77c8686ecded1e8c12e7d2dd7745c21ec846c803e250eab466732ef217e2883dba8a67d2f84b72ecc2",
+    "password": "scrypt:bca39386fe6616baed3978df2d7273e0:b5413a3c1c4fa6d041d73f03f101b9fa2076d09f3ff08f7a9efc5dcbd841426a5e4148fb361972b1d1fdcc5ded8b8170b0d8b56ead623d1d6685f896ea01f578",
     "updatedAt": "2026-11-03T17:13:05.441Z"
   },
   "chatConversations": [
