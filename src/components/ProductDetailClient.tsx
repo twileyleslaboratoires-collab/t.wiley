@@ -240,8 +240,9 @@ export default function ProductDetailClient({
         <video
           src={url}
           controls
+          playsInline
           preload="metadata"
-          className="w-full max-h-[380px] object-contain mx-auto"
+          className="w-full max-h-[380px] sm:max-h-[460px] object-contain mx-auto"
         >
           Votre navigateur ne supporte pas la lecture de cette vidéo.
         </video>
@@ -276,6 +277,14 @@ export default function ProductDetailClient({
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
+            {/* Badge indicateur de vidéo disponible */}
+            {allVideos.length > 0 && product.showVideo !== false && (
+              <div className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full bg-amber-500/95 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-md flex items-center gap-1.5 backdrop-blur-xs pointer-events-none">
+                <Play className="w-3 h-3 fill-slate-950" />
+                <span>{allVideos.length > 1 ? `${allVideos.length} vidéos disponibles` : 'Vidéo disponible'}</span>
+              </div>
+            )}
+
             {/* Contenu visuel actif (Photo ou Vidéo au même niveau) */}
             {currentMedia.type === 'image' ? (
               // eslint-disable-next-line @next/next/no-img-element

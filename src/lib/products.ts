@@ -20,10 +20,33 @@ export function toSupabaseProduct(p: Partial<Product>) {
   if (p.stockQuantity !== undefined) row.stock_quantity = Number(p.stockQuantity);
   if (p.isPublished !== undefined) row.is_published = Boolean(p.isPublished);
   if (p.isFeatured !== undefined) row.is_featured = Boolean(p.isFeatured);
-  if (p.characteristics !== undefined) row.characteristics = p.characteristics;
   if (p.additionalInfo !== undefined) row.additional_info = p.additionalInfo;
   if (p.createdAt !== undefined) row.created_at = p.createdAt;
   if (p.updatedAt !== undefined) row.updated_at = p.updatedAt;
+
+  // Persistance robuste des vidéos et médias dans characteristics (supporté en JSONB dans Supabase)
+  const baseChars = Array.isArray(p.characteristics)
+    ? p.characteristics.filter((c: any) => c && !String(c.label).startsWith('__tw_'))
+    : [];
+
+  const videos = Array.isArray(p.videos)
+    ? p.videos.filter(Boolean)
+    : (p.videoUrl ? [p.videoUrl] : []);
+  const videoUrl = p.videoUrl || (videos.length > 0 ? videos[0] : '');
+  const showVideo = p.showVideo !== false;
+
+  if (videos.length > 0 || videoUrl) {
+    baseChars.push({
+      label: '__tw_media__',
+      value: JSON.stringify({
+        videos,
+        videoUrl,
+        showVideo,
+      }),
+    });
+  }
+
+  row.characteristics = baseChars;
   return row;
 }
 
@@ -31,6 +54,42 @@ export function fromSupabaseProduct(row: any, fallback?: Partial<Product>): Prod
   const images = Array.isArray(row.images) && row.images.length > 0
     ? row.images
     : (row.main_image ? [row.main_image] : (fallback?.images || []));
+
+  // Extraction sécurisée des vidéos et médias depuis characteristics (__tw_media__) ou fallback
+  let videos: string[] = fallback?.videos || (fallback?.videoUrl ? [fallback.videoUrl] : []);
+  let videoUrl: string = fallback?.videoUrl || (videos.length > 0 ? videos[0] : '');
+  let showVideo: boolean = fallback?.showVideo !== false;
+
+  const cleanCharacteristics: Array<{ label: string; value: string }> = [];
+  if (Array.isArray(row.characteristics)) {
+    for (const c of row.characteristics) {
+      if (!c) continue;
+      if (c.label === '__tw_media__' && typeof c.value === 'string') {
+        try {
+          const parsed = JSON.parse(c.value);
+          if (Array.isArray(parsed.videos) && parsed.videos.length > 0) {
+            videos = parsed.videos.filter(Boolean);
+          }
+          if (parsed.videoUrl) {
+            videoUrl = parsed.videoUrl;
+          }
+          if (parsed.showVideo !== undefined) {
+            showVideo = Boolean(parsed.showVideo);
+          }
+        } catch {
+          // Ignorer
+        }
+      } else if (!String(c.label).startsWith('__tw_')) {
+        cleanCharacteristics.push(c);
+      }
+    }
+  }
+
+  if (videos.length > 0 && !videoUrl) {
+    videoUrl = videos[0];
+  } else if (videoUrl && videos.length === 0) {
+    videos = [videoUrl];
+  }
 
   return {
     id: row.id,
@@ -47,15 +106,15 @@ export function fromSupabaseProduct(row: any, fallback?: Partial<Product>): Prod
     images,
     sku: fallback?.sku || '',
     originalPrice: fallback?.originalPrice,
-    videoUrl: fallback?.videoUrl || '',
-    videos: fallback?.videos || [],
-    showVideo: fallback?.showVideo !== false,
+    videoUrl,
+    videos,
+    showVideo,
     order: fallback?.order || 0,
     availability: row.availability || fallback?.availability || 'in_stock',
     stockQuantity: Number(row.stock_quantity ?? fallback?.stockQuantity ?? 10),
     isPublished: row.is_published !== undefined ? Boolean(row.is_published) : (fallback?.isPublished ?? true),
     isFeatured: Boolean(row.is_featured ?? fallback?.isFeatured ?? false),
-    characteristics: Array.isArray(row.characteristics) ? row.characteristics : (fallback?.characteristics || []),
+    characteristics: cleanCharacteristics.length > 0 ? cleanCharacteristics : (fallback?.characteristics || []),
     additionalInfo: row.additional_info || fallback?.additionalInfo || '',
     createdAt: row.created_at || fallback?.createdAt || new Date().toISOString(),
     updatedAt: row.updated_at || fallback?.updatedAt || new Date().toISOString(),
