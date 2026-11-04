@@ -143,6 +143,7 @@ export interface ChatConversation {
   status: 'active' | 'closed';
   unreadByAdmin?: boolean;
   unreadByClient?: boolean;
+  adminLastReadAt?: string;
   messages: ChatMessage[];
 }
 

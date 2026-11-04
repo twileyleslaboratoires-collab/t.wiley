@@ -70,6 +70,73 @@ export default function GestionnaireChatPage() {
 
   const selectedConv = conversations.find((c) => c.id === selectedConvId);
 
+  // Fonction pour marquer une conversation comme consultée (remet à zéro son statut)
+  const markAsRead = React.useCallback((convId: string) => {
+    if (!convId) return;
+
+    // Mise à jour de l'état local immédiate
+    const nowIso = new Date().toISOString();
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? { ...c, unreadByAdmin: false, adminLastReadAt: nowIso }
+          : c
+      )
+    );
+
+    // Persistance côté serveur
+    fetch('/api/chat', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId: convId }),
+    }).catch(() => {});
+
+    // Notification globale pour mettre à jour le compteur du menu en direct
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('twiley_chat_read', { detail: { conversationId: convId } })
+      );
+    }
+  }, []);
+
+  // Dès qu'une conversation est sélectionnée ou affichée à l'écran, la marquer comme consultée
+  useEffect(() => {
+    if (selectedConvId) {
+      markAsRead(selectedConvId);
+    }
+  }, [selectedConvId, markAsRead]);
+
+  // Détermine si une conversation contient des nouveaux messages non consultés par le gestionnaire
+  const isConversationUnread = (conv: ChatConversation) => {
+    // Si la conversation est activement consultée dans la fenêtre de droite, elle n'est plus "non consultée"
+    if (conv.id === selectedConvId) return false;
+
+    const msgs = conv.messages || [];
+    if (msgs.length === 0) return false;
+
+    const lastMsg = msgs[msgs.length - 1];
+    // Si la dernière réponse émane du gestionnaire, elle est déjà traitée
+    if (lastMsg.sender === 'agent') return false;
+
+    // Si le gestionnaire l'a déjà consultée à une heure postérieure au dernier message client
+    if (conv.adminLastReadAt) {
+      return new Date(lastMsg.timestamp).getTime() > new Date(conv.adminLastReadAt).getTime();
+    }
+
+    return Boolean(conv.unreadByAdmin);
+  };
+
+  // Compteur total de messages non encore consultés
+  const totalUnreadCount = conversations.reduce((acc, c) => {
+    if (isConversationUnread(c)) {
+      const msgs = c.messages || [];
+      const lastReadTime = c.adminLastReadAt ? new Date(c.adminLastReadAt).getTime() : 0;
+      const unreadMsgs = msgs.filter((m) => m.sender === 'client' && new Date(m.timestamp).getTime() > lastReadTime);
+      return acc + (unreadMsgs.length > 0 ? unreadMsgs.length : 1);
+    }
+    return acc;
+  }, 0);
+
   // Défilement automatique UNIQUEMENT dans le conteneur interne de la boîte de discussion
   // N'affecte JAMAIS le scroll de la page ou de la fenêtre
   useEffect(() => {
@@ -168,9 +235,19 @@ export default function GestionnaireChatPage() {
         {/* En-tête */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 flex-wrap">
               <MessageSquare className="w-7 h-7 text-brand-600" />
-              Chat en Direct & Échanges Clients
+              <span>Chat en Direct & Échanges Clients</span>
+              {totalUnreadCount > 0 ? (
+                <span className="px-2.5 py-1 rounded-full text-xs font-black bg-rose-500 text-white shadow-xs animate-pulse flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                  <span>{totalUnreadCount} nouveau(x) message(s) non consulté(s)</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Tous les messages sont consultés (0)
+                </span>
+              )}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
               Répondez directement aux clients connectés sur le site en temps réel
@@ -217,7 +294,10 @@ export default function GestionnaireChatPage() {
                     <button
                       key={conv.id}
                       type="button"
-                      onClick={() => setSelectedConvId(conv.id)}
+                      onClick={() => {
+                        setSelectedConvId(conv.id);
+                        markAsRead(conv.id);
+                      }}
                       className={`w-full p-4 text-left transition-colors flex items-start gap-3 ${
                         isSelected
                           ? 'bg-brand-50/80 border-l-4 border-brand-600'
@@ -242,8 +322,8 @@ export default function GestionnaireChatPage() {
                         <p className="text-xs text-slate-500 truncate">
                           {lastMsg ? lastMsg.text : 'Discussion ouverte'}
                         </p>
-                        {conv.unreadByAdmin && (
-                          <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-brand-600 text-white text-[9px] font-black uppercase tracking-wider">
+                        {isConversationUnread(conv) && (
+                          <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black uppercase tracking-wider shadow-xs animate-pulse">
                             Nouveau message
                           </span>
                         )}

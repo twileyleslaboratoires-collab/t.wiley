@@ -238,6 +238,55 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  if (!isUserAdmin()) {
+    return NextResponse.json({ error: 'Accès non autorisé.' }, { status: 403, headers: NO_CACHE_HEADERS });
+  }
+
+  try {
+    const body = await req.json();
+    const { conversationId } = body;
+
+    if (!conversationId) {
+      return NextResponse.json({ error: 'ID de conversation manquant.' }, { status: 400, headers: NO_CACHE_HEADERS });
+    }
+
+    const db = getDatabase();
+    if (!Array.isArray(db.chatConversations)) {
+      db.chatConversations = [];
+    }
+
+    const now = new Date().toISOString();
+    let conv = db.chatConversations.find((c) => c.id === conversationId);
+
+    if (conv) {
+      conv.unreadByAdmin = false;
+      conv.adminLastReadAt = now;
+    } else {
+      conv = {
+        id: conversationId,
+        customerName: 'Client',
+        createdAt: now,
+        updatedAt: now,
+        status: 'active',
+        unreadByAdmin: false,
+        adminLastReadAt: now,
+        messages: [],
+      };
+      db.chatConversations.push(conv);
+    }
+
+    try {
+      saveDatabase(db);
+    } catch {}
+
+    return NextResponse.json({ success: true, conversationId, adminLastReadAt: now }, { headers: NO_CACHE_HEADERS });
+  } catch (error) {
+    console.error('Erreur PATCH /api/chat:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500, headers: NO_CACHE_HEADERS });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

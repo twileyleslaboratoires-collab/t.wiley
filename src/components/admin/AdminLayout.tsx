@@ -32,6 +32,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [checking, setChecking] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
+
+  const fetchUnreadChatCount = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/chat/unread-count?_t=${Date.now()}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadChatCount(Number(data.unreadCount || 0));
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -54,6 +65,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         setChecking(false);
       });
   }, [router]);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    fetchUnreadChatCount();
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        fetchUnreadChatCount();
+      }
+    }, 5000);
+
+    const handleChatRead = () => {
+      fetchUnreadChatCount();
+    };
+
+    window.addEventListener('twiley_chat_read', handleChatRead);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('twiley_chat_read', handleChatRead);
+    };
+  }, [authenticated, fetchUnreadChatCount]);
 
   const handleLogout = async () => {
     try {
@@ -119,10 +151,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200"
+          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 relative"
           aria-label="Menu"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {unreadChatCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white font-extrabold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+              {unreadChatCount}
+            </span>
+          )}
         </button>
       </div>
 
@@ -176,7 +213,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
-                  <span>{item.label}</span>
+                  <span className="flex-1 truncate">{item.label}</span>
+                  {item.href === '/gestionnaire/chat' && unreadChatCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-xs animate-pulse">
+                      {unreadChatCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
