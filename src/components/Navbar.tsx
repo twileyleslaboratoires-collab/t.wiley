@@ -27,6 +27,38 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
     }
   }, [companyInfo]);
 
+  // Interception du bouton retour du téléphone pour fermer le menu mobile sans quitter le site
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!mobileMenuOpen) return;
+
+    try {
+      window.history.pushState({ ...window.history.state, navDrawerOpen: true }, '');
+    } catch {
+      // Ignorer
+    }
+
+    const handlePopState = () => {
+      setMobileMenuOpen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [mobileMenuOpen]);
+
+  const toggleMobileMenu = () => {
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+      if (typeof window !== 'undefined' && window.history.state?.navDrawerOpen) {
+        window.history.back();
+      }
+    } else {
+      setMobileMenuOpen(true);
+    }
+  };
+
   const navLinks = [
     { label: 'BOUTIQUE', href: '/' },
     { label: 'CATÉGORIES', href: '/categories' },
@@ -124,7 +156,7 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
 
             {/* Mobile Hamburger Button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="md:hidden p-2.5 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none"
               aria-label="Ouvrir le menu"
             >

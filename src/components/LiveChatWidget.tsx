@@ -99,6 +99,34 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
     };
   }, [isOpen, conversation?.id]);
 
+  // Interception du bouton retour du téléphone pour fermer le chat sans quitter le site
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!isOpen) return;
+
+    try {
+      window.history.pushState({ ...window.history.state, chatOpen: true }, '');
+    } catch {
+      // Ignorer
+    }
+
+    const handlePopState = () => {
+      setIsOpen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isOpen]);
+
+  const handleCloseChat = () => {
+    setIsOpen(false);
+    if (typeof window !== 'undefined' && window.history.state?.chatOpen) {
+      window.history.back();
+    }
+  };
+
   const handleSendMessage = async (textToSend?: string) => {
     const msg = (textToSend || inputText).trim();
     if (!msg || loading) return;
@@ -212,7 +240,7 @@ export default function LiveChatWidget({ whatsappNumber = '2250767626468' }: Liv
 
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={handleCloseChat}
               className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
               title="Fermer le chat"
               aria-label="Fermer"

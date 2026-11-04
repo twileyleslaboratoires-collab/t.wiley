@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LiveChatWidget from '@/components/LiveChatWidget';
+import MobileNavigationGuard from '@/components/MobileNavigationGuard';
 import { getDatabase } from '@/lib/storage';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -89,6 +90,7 @@ export default function RootLayout({
         <ThemeProvider initialTheme={theme}>
           <ToastProvider>
             <CartProvider>
+              <MobileNavigationGuard />
               <Navbar initialCompanyInfo={companyInfo} />
               <main className="flex-1">
                 {children}
