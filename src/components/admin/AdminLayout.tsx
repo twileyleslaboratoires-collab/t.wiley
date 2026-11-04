@@ -34,7 +34,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState<number>(0);
 
+  const isChatPage = pathname.startsWith('/gestionnaire/chat') || pathname.startsWith('/admin/chat');
+
   const fetchUnreadChatCount = React.useCallback(async () => {
+    if (isChatPage) {
+      setUnreadChatCount(0);
+      return;
+    }
     try {
       const res = await fetch(`/api/chat/unread-count?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
@@ -42,7 +48,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         setUnreadChatCount(Number(data.unreadCount || 0));
       }
     } catch {}
-  }, []);
+  }, [isChatPage]);
+
+  // Quand le gestionnaire ouvre la page Chat en Direct, remise à zéro immédiate du badge menu
+  useEffect(() => {
+    if (isChatPage) {
+      setUnreadChatCount(0);
+      try {
+        localStorage.setItem('twiley_chat_last_menu_opened', Date.now().toString());
+      } catch {}
+      fetch('/api/chat', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markMenuOpened: true }),
+      }).catch(() => {});
+    }
+  }, [isChatPage]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -155,7 +176,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           aria-label="Menu"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          {unreadChatCount > 0 && (
+          {!isChatPage && unreadChatCount > 0 && (
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white font-extrabold text-[9px] rounded-full flex items-center justify-center shadow-xs">
               {unreadChatCount}
             </span>
@@ -214,7 +235,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   <span className="flex-1 truncate">{item.label}</span>
-                  {item.href === '/gestionnaire/chat' && unreadChatCount > 0 && (
+                  {item.href === '/gestionnaire/chat' && !isChatPage && unreadChatCount > 0 && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-xs animate-pulse">
                       {unreadChatCount}
                     </span>

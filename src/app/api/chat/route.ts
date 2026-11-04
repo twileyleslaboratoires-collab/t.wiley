@@ -3,6 +3,7 @@ import { getDatabase, saveDatabase } from '@/lib/storage';
 import { isUserAdmin } from '@/lib/auth';
 import { getServiceSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { ChatConversation, ChatMessage } from '@/types';
+import { getAdminChatMeta, markChatMenuOpened, markConversationRead } from '@/lib/chat-reads';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -219,7 +220,12 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const sorted = Array.from(mergedMap.values()).sort(
+    const meta = await getAdminChatMeta();
+
+    const sorted = Array.from(mergedMap.values()).map((c) => ({
+      ...c,
+      adminLastReadAt: meta.convReads[c.id] || c.adminLastReadAt,
+    })).sort(
       (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
 
@@ -245,42 +251,19 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { conversationId } = body;
+    const { conversationId, markMenuOpened, timestamp } = body;
 
-    if (!conversationId) {
-      return NextResponse.json({ error: 'ID de conversation manquant.' }, { status: 400, headers: NO_CACHE_HEADERS });
+    if (markMenuOpened) {
+      await markChatMenuOpened();
+      return NextResponse.json({ success: true, menuOpened: true }, { headers: NO_CACHE_HEADERS });
     }
 
-    const db = getDatabase();
-    if (!Array.isArray(db.chatConversations)) {
-      db.chatConversations = [];
+    if (conversationId) {
+      await markConversationRead(conversationId, timestamp);
+      return NextResponse.json({ success: true, conversationId }, { headers: NO_CACHE_HEADERS });
     }
 
-    const now = new Date().toISOString();
-    let conv = db.chatConversations.find((c) => c.id === conversationId);
-
-    if (conv) {
-      conv.unreadByAdmin = false;
-      conv.adminLastReadAt = now;
-    } else {
-      conv = {
-        id: conversationId,
-        customerName: 'Client',
-        createdAt: now,
-        updatedAt: now,
-        status: 'active',
-        unreadByAdmin: false,
-        adminLastReadAt: now,
-        messages: [],
-      };
-      db.chatConversations.push(conv);
-    }
-
-    try {
-      saveDatabase(db);
-    } catch {}
-
-    return NextResponse.json({ success: true, conversationId, adminLastReadAt: now }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ error: 'Action non spécifiée.' }, { status: 400, headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('Erreur PATCH /api/chat:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500, headers: NO_CACHE_HEADERS });

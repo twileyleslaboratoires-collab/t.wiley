@@ -7,12 +7,8 @@ import {
   Send,
   User,
   Clock,
-  CheckCircle,
   RefreshCw,
   Search,
-  Sparkles,
-  Headphones,
-  Phone,
 } from 'lucide-react';
 import { ChatConversation } from '@/types';
 import { useToast } from '@/context/ToastContext';
@@ -20,6 +16,7 @@ import { useToast } from '@/context/ToastContext';
 export default function GestionnaireChatPage() {
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
+  const [readState, setReadState] = useState<Record<string, number>>({});
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -28,6 +25,60 @@ export default function GestionnaireChatPage() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const prevMsgCountRef = useRef<number>(0);
 
+  // Charger l'état des conversations déjà lues depuis le cache local du navigateur
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const loaded: Record<string, number> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('twiley_admin_read_')) {
+        const convId = key.replace('twiley_admin_read_', '');
+        const val = Number(localStorage.getItem(key)) || 0;
+        if (val > 0) loaded[convId] = val;
+      }
+    }
+    setReadState(loaded);
+  }, []);
+
+  // Fonction pour marquer une conversation comme consultée (remet à zéro son statut)
+  const markAsRead = React.useCallback((convId: string) => {
+    if (!convId) return;
+
+    const nowMs = Date.now();
+    const nowIso = new Date(nowMs).toISOString();
+
+    // 1. Mise à jour de l'état local immédiat
+    setReadState((prev) => ({ ...prev, [convId]: nowMs }));
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`twiley_admin_read_${convId}`, nowMs.toString());
+      } catch {}
+    }
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === convId
+          ? { ...c, unreadByAdmin: false, adminLastReadAt: nowIso }
+          : c
+      )
+    );
+
+    // 2. Persistance côté serveur
+    fetch('/api/chat', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId: convId, timestamp: nowIso }),
+    }).catch(() => {});
+
+    // 3. Notification globale pour le menu
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('twiley_chat_read', { detail: { conversationId: convId } })
+      );
+    }
+  }, []);
+
   const fetchConversations = async () => {
     try {
       const res = await fetch(`/api/chat?_t=${Date.now()}`, { cache: 'no-store' });
@@ -35,7 +86,6 @@ export default function GestionnaireChatPage() {
         const data: ChatConversation[] = await res.json();
         if (Array.isArray(data)) {
           setConversations((prev) => {
-            // Comparer pour éviter les re-renders inutiles
             const isDiff =
               data.length !== prev.length ||
               JSON.stringify(data.map((c) => ({ id: c.id, count: c.messages.length, up: c.updatedAt }))) !==
@@ -43,12 +93,12 @@ export default function GestionnaireChatPage() {
             return isDiff ? data : prev;
           });
 
-          setSelectedConvId((current) => {
-            if (!current && data.length > 0) {
-              return data[0].id;
-            }
-            return current;
-          });
+          // Si l'administrateur est DÉJÀ en train de regarder une conversation active,
+          // tout nouveau message qui arrive sur cette même discussion est immédiatement considéré comme vu et lu.
+          // Son compteur reste à zéro.
+          if (selectedConvId) {
+            markAsRead(selectedConvId);
+          }
         }
       }
     } catch (err) {
@@ -66,79 +116,48 @@ export default function GestionnaireChatPage() {
       }
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedConvId]);
 
   const selectedConv = conversations.find((c) => c.id === selectedConvId);
 
-  // Fonction pour marquer une conversation comme consultée (remet à zéro son statut)
-  const markAsRead = React.useCallback((convId: string) => {
-    if (!convId) return;
-
-    // Mise à jour de l'état local immédiate
-    const nowIso = new Date().toISOString();
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === convId
-          ? { ...c, unreadByAdmin: false, adminLastReadAt: nowIso }
-          : c
-      )
-    );
-
-    // Persistance côté serveur
-    fetch('/api/chat', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conversationId: convId }),
-    }).catch(() => {});
-
-    // Notification globale pour mettre à jour le compteur du menu en direct
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('twiley_chat_read', { detail: { conversationId: convId } })
-      );
-    }
-  }, []);
-
-  // Dès qu'une conversation est sélectionnée ou affichée à l'écran, la marquer comme consultée
+  // Dès qu'une conversation est sélectionnée, la marquer comme consultée
   useEffect(() => {
     if (selectedConvId) {
       markAsRead(selectedConvId);
     }
   }, [selectedConvId, markAsRead]);
 
-  // Détermine si une conversation contient des nouveaux messages non consultés par le gestionnaire
-  const isConversationUnread = (conv: ChatConversation) => {
-    // Si la conversation est activement consultée dans la fenêtre de droite, elle n'est plus "non consultée"
-    if (conv.id === selectedConvId) return false;
+  // Calcule le nombre réel de nouveaux messages non consultés pour chaque client
+  const getConvUnreadCount = (conv: ChatConversation): number => {
+    // Si la conversation est activement ouverte à droite, elle est en cours de lecture directe -> 0 non lu
+    if (conv.id === selectedConvId) return 0;
 
     const msgs = conv.messages || [];
-    if (msgs.length === 0) return false;
+    if (msgs.length === 0) return 0;
 
-    const lastMsg = msgs[msgs.length - 1];
-    // Si la dernière réponse émane du gestionnaire, elle est déjà traitée
-    if (lastMsg.sender === 'agent') return false;
-
-    // Si le gestionnaire l'a déjà consultée à une heure postérieure au dernier message client
-    if (conv.adminLastReadAt) {
-      return new Date(lastMsg.timestamp).getTime() > new Date(conv.adminLastReadAt).getTime();
+    // Récupérer le timestamp du dernier message lu
+    let readTime = readState[conv.id] || 0;
+    if (!readTime && typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`twiley_admin_read_${conv.id}`);
+      if (saved) readTime = Number(saved) || 0;
+    }
+    if (!readTime && conv.adminLastReadAt) {
+      readTime = new Date(conv.adminLastReadAt).getTime();
     }
 
-    return Boolean(conv.unreadByAdmin);
+    // Compter strictement les messages clients reçus après la dernière consultation
+    const unreadMsgs = msgs.filter((m) => {
+      if (m.sender !== 'client') return false;
+      return new Date(m.timestamp).getTime() > readTime;
+    });
+
+    return unreadMsgs.length;
   };
 
-  // Compteur total de messages non encore consultés
-  const totalUnreadCount = conversations.reduce((acc, c) => {
-    if (isConversationUnread(c)) {
-      const msgs = c.messages || [];
-      const lastReadTime = c.adminLastReadAt ? new Date(c.adminLastReadAt).getTime() : 0;
-      const unreadMsgs = msgs.filter((m) => m.sender === 'client' && new Date(m.timestamp).getTime() > lastReadTime);
-      return acc + (unreadMsgs.length > 0 ? unreadMsgs.length : 1);
-    }
-    return acc;
-  }, 0);
+  // Compteur total de messages non encore consultés parmi tous les clients
+  const totalUnreadCount = conversations.reduce((acc, c) => acc + getConvUnreadCount(c), 0);
 
-  // Défilement automatique UNIQUEMENT dans le conteneur interne de la boîte de discussion
-  // N'affecte JAMAIS le scroll de la page ou de la fenêtre
+  // Défilement automatique doux dans le conteneur des messages
   useEffect(() => {
     const currentCount = selectedConv?.messages?.length || 0;
     if (currentCount > prevMsgCountRef.current || selectedConvId) {
@@ -156,7 +175,7 @@ export default function GestionnaireChatPage() {
     setSending(true);
     setReplyText('');
 
-    // Message optimiste affiché instantanément dans la fenêtre du gestionnaire
+    // Message optimiste instantané
     const tempMsgId = `temp-reply-${Date.now()}`;
     const nowIso = new Date().toISOString();
     const optimisticMsg = {
@@ -241,7 +260,7 @@ export default function GestionnaireChatPage() {
               {totalUnreadCount > 0 ? (
                 <span className="px-2.5 py-1 rounded-full text-xs font-black bg-rose-500 text-white shadow-xs animate-pulse flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                  <span>{totalUnreadCount} nouveau(x) message(s) non consulté(s)</span>
+                  <span>{totalUnreadCount} nouveau{totalUnreadCount > 1 ? 'x' : ''} message{totalUnreadCount > 1 ? 's' : ''} non consulté{totalUnreadCount > 1 ? 's' : ''}</span>
                 </span>
               ) : (
                 <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -290,6 +309,8 @@ export default function GestionnaireChatPage() {
                 filteredConversations.map((conv) => {
                   const isSelected = conv.id === selectedConvId;
                   const lastMsg = conv.messages[conv.messages.length - 1];
+                  const unreadCount = getConvUnreadCount(conv);
+
                   return (
                     <button
                       key={conv.id}
@@ -312,20 +333,32 @@ export default function GestionnaireChatPage() {
                           <h4 className="font-bold text-xs text-slate-900 truncate">
                             {conv.customerName}
                           </h4>
-                          <span className="text-[10px] text-slate-400 flex-shrink-0">
-                            {new Date(conv.updatedAt).toLocaleTimeString('fr-FR', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="text-[10px] text-slate-400">
+                              {new Date(conv.updatedAt).toLocaleTimeString('fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                            {/* Pastille numérique rouge si des messages ne sont pas encore vus */}
+                            {unreadCount > 0 && (
+                              <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-black shadow-xs animate-pulse">
+                                {unreadCount}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <p className="text-xs text-slate-500 truncate">
                           {lastMsg ? lastMsg.text : 'Discussion ouverte'}
                         </p>
-                        {isConversationUnread(conv) && (
-                          <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black uppercase tracking-wider shadow-xs animate-pulse">
-                            Nouveau message
-                          </span>
+                        {/* Étiquette d'alerte avec le nombre exact de nouveaux messages */}
+                        {unreadCount > 0 && (
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 text-[10px] font-extrabold shadow-2xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                              <span>{unreadCount} nouveau{unreadCount > 1 ? 'x' : ''} message{unreadCount > 1 ? 's' : ''} non vu{unreadCount > 1 ? 's' : ''}</span>
+                            </span>
+                          </div>
                         )}
                       </div>
                     </button>
@@ -437,13 +470,15 @@ export default function GestionnaireChatPage() {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400">
-                <MessageSquare className="w-12 h-12 text-slate-300 mb-3" />
-                <p className="text-sm font-semibold text-slate-600">
-                  Sélectionnez une discussion à gauche
-                </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Les messages envoyés par les visiteurs du site s’affichent ici
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-400 min-h-[420px]">
+                <div className="w-16 h-16 rounded-3xl bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600 mb-4 shadow-sm">
+                  <MessageSquare className="w-8 h-8" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-1">
+                  Centre d’Échanges Clients en Direct
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm">
+                  Sélectionnez une discussion dans la liste de gauche pour lire les messages et répondre en direct au client.
                 </p>
               </div>
             )}
@@ -453,4 +488,3 @@ export default function GestionnaireChatPage() {
     </AdminLayout>
   );
 }
-

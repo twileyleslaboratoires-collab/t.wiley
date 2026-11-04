@@ -3,6 +3,7 @@ import { getDatabase } from '@/lib/storage';
 import { isUserAdmin } from '@/lib/auth';
 import { getServiceSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { ChatConversation, ChatMessage } from '@/types';
+import { getAdminChatMeta } from '@/lib/chat-reads';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,6 +20,9 @@ export async function GET() {
   }
 
   try {
+    const meta = await getAdminChatMeta();
+    const menuOpenTime = meta.lastMenuOpenedAt ? new Date(meta.lastMenuOpenedAt).getTime() : 0;
+
     const db = getDatabase();
     const localMap = new Map<string, ChatConversation>();
     for (const c of db.chatConversations || []) {
@@ -53,6 +57,7 @@ export async function GET() {
             for (const sc of convsData) {
               const local = localMap.get(sc.id);
               const msgs = msgMap.get(sc.id) || [];
+              const adminReadAt = meta.convReads[sc.id] || local?.adminLastReadAt;
               localMap.set(sc.id, {
                 id: sc.id,
                 customerName: sc.customer_name,
@@ -60,7 +65,7 @@ export async function GET() {
                 createdAt: sc.created_at,
                 updatedAt: sc.updated_at,
                 status: 'active',
-                adminLastReadAt: local?.adminLastReadAt,
+                adminLastReadAt: adminReadAt,
                 unreadByAdmin: local?.unreadByAdmin,
                 messages: msgs,
               });
@@ -81,35 +86,36 @@ export async function GET() {
       const msgs = conv.messages || [];
       if (msgs.length === 0) continue;
 
-      const lastMsg = msgs[msgs.length - 1];
-      // Si le dernier message est de l'agent, le gestionnaire a déjà répondu -> non compté
-      if (lastMsg.sender === 'agent') continue;
+      const lastReadIso = meta.convReads[conv.id] || conv.adminLastReadAt;
+      const lastReadTime = lastReadIso ? new Date(lastReadIso).getTime() : 0;
 
-      // Si le gestionnaire a explicitement marqué comme lu sans nouveau message depuis
-      const lastReadTime = conv.adminLastReadAt ? new Date(conv.adminLastReadAt).getTime() : 0;
-      if (lastReadTime > 0 && new Date(lastMsg.timestamp).getTime() <= lastReadTime) {
-        continue;
-      }
-
-      // Nombre de messages du client reçus depuis la dernière consultation
-      const unreadMsgs = msgs.filter((m) => {
+      // 1. Compteur individuel de cette conversation pour la liste clients
+      const unreadMsgsForConv = msgs.filter((m) => {
         if (m.sender !== 'client') return false;
         return new Date(m.timestamp).getTime() > lastReadTime;
       });
 
-      const count = unreadMsgs.length > 0 ? unreadMsgs.length : (conv.unreadByAdmin ? 1 : 0);
-
-      if (count > 0) {
-        unreadCount += count;
+      const countForConv = unreadMsgsForConv.length;
+      if (countForConv > 0) {
+        details[conv.id] = countForConv;
         unreadConversations += 1;
-        details[conv.id] = count;
       }
+
+      // 2. Compteur global pour le menu (uniquement les nouveaux messages reçus depuis l'ouverture du menu et non lus)
+      const newSinceMenuOpened = msgs.filter((m) => {
+        if (m.sender !== 'client') return false;
+        const msgTime = new Date(m.timestamp).getTime();
+        return msgTime > Math.max(menuOpenTime, lastReadTime);
+      });
+
+      unreadCount += newSinceMenuOpened.length;
     }
 
     return NextResponse.json(
       {
         unreadCount,
         unreadConversations,
+        lastMenuOpenedAt: meta.lastMenuOpenedAt,
         details,
       },
       { headers: NO_CACHE_HEADERS }
