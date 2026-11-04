@@ -48,26 +48,42 @@ export default function ProductDetailClient({
   const [product, setProduct] = useState<Product>(initialProduct);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(initialCompanyInfo);
 
+  // Synchronisation immédiate quand les props changent
+  useEffect(() => {
+    setProduct(initialProduct);
+  }, [initialProduct]);
+
+  useEffect(() => {
+    setCompanyInfo(initialCompanyInfo);
+  }, [initialCompanyInfo]);
+
   useEffect(() => {
     let isMounted = true;
     const syncProduct = async () => {
       try {
         const [pRes, cRes] = await Promise.all([
-          fetch(`/api/products/${initialProduct.id}`),
-          fetch('/api/company'),
+          fetch(`/api/products/${initialProduct.id}?_t=${Date.now()}`, { cache: 'no-store' }),
+          fetch(`/api/company?_t=${Date.now()}`, { cache: 'no-store' }),
         ]);
         if (isMounted && pRes.ok) {
           const fresh = await pRes.json();
-          setProduct(fresh);
+          if (fresh && fresh.id) {
+            setProduct(fresh);
+          }
         }
         if (isMounted && cRes.ok) {
           const comp = await cRes.json();
-          setCompanyInfo(comp);
+          if (comp) {
+            setCompanyInfo(comp);
+          }
         }
       } catch {
         // Ignorer
       }
     };
+
+    // Synchro immédiate dès le montage
+    syncProduct();
 
     const interval = setInterval(syncProduct, 4000);
     window.addEventListener('focus', syncProduct);

@@ -2,18 +2,22 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getDatabase } from '@/lib/storage';
+import { getLiveProductBySlugOrId, getLiveProducts } from '@/lib/products';
 import ProductDetailClient from '@/components/ProductDetailClient';
 
 interface Props {
-  params: { slug: string };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const db = getDatabase();
-  const product = db.products.find((p) => p.slug === params.slug && p.isPublished);
+  const resolvedParams = await Promise.resolve(params);
+  const slug = resolvedParams?.slug;
+  if (!slug) return { title: 'Produit non trouvé' };
+
+  const product = await getLiveProductBySlugOrId(slug);
 
   if (!product) {
     return {
@@ -22,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: product.name,
+    title: `${product.name} | Les Laboratoires T. Wiley`,
     description: product.shortDescription,
     openGraph: {
       title: `${product.name} — ${product.categoryName}`,
@@ -39,21 +43,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function ProductDetailPage({ params }: Props) {
-  const db = getDatabase();
-  const product = db.products.find((p) => p.slug === params.slug && p.isPublished);
+export default async function ProductDetailPage({ params }: Props) {
+  const resolvedParams = await Promise.resolve(params);
+  const slug = resolvedParams?.slug;
+  if (!slug) notFound();
 
-  if (!product) {
+  // 1. Récupération directe du produit à jour (depuis Supabase en priorité)
+  const product = await getLiveProductBySlugOrId(slug);
+
+  if (!product || !product.isPublished) {
     notFound();
   }
 
-  // 1. Produits de la même catégorie (hors produit courant)
-  const sameCategoryProducts = db.products
+  const allProducts = await getLiveProducts();
+  const db = getDatabase();
+
+  // 2. Produits de la même catégorie (hors produit courant)
+  const sameCategoryProducts = allProducts
     .filter((p) => p.categoryId === product.categoryId && p.id !== product.id && p.isPublished)
     .slice(0, 4);
 
-  // 2. Produits similaires / Recommandés (hors produit courant et hors même catégorie pour varier les suggestions)
-  const similarProducts = db.products
+  // 3. Produits similaires / Recommandés (hors produit courant et hors même catégorie)
+  const similarProducts = allProducts
     .filter(
       (p) =>
         p.id !== product.id &&
@@ -95,4 +106,3 @@ export default function ProductDetailPage({ params }: Props) {
     </>
   );
 }
-

@@ -119,3 +119,4 @@ export async function GET() {
     return NextResponse.json({ unreadCount: 0, unreadConversations: 0, details: {} }, { headers: NO_CACHE_HEADERS });
   }
 }
+
