@@ -40,6 +40,7 @@ export default function AdminProductsPage() {
   // État du modal (Ajout / Modification)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingMultiple, setUploadingMultiple] = useState(false);
   const [uploadingVideos, setUploadingVideos] = useState(false);
@@ -71,8 +72,8 @@ export default function AdminProductsPage() {
   const loadData = () => {
     setLoading(true);
     Promise.all([
-      fetch('/api/products?includeUnpublished=true').then((r) => r.json()),
-      fetch('/api/categories').then((r) => r.json()),
+      fetch(`/api/products?includeUnpublished=true&_t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()),
+      fetch(`/api/categories?_t=${Date.now()}`, { cache: 'no-store' }).then((r) => r.json()),
     ])
       .then(([prods, cats]) => {
         setProducts(prods || []);
@@ -287,41 +288,58 @@ export default function AdminProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving) return;
 
+    setIsSaving(true);
     try {
       if (editingProduct) {
         // Mise à jour
         const res = await fetch(`/api/products/${editingProduct.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
           body: JSON.stringify(formData),
         });
 
+        const result = await res.json().catch(() => ({}));
+
         if (res.ok) {
           showToast('Produit mis à jour avec succès !', 'success');
+          // Mise à jour locale immédiate de la liste
+          setProducts((prev) =>
+            prev.map((p) => (p.id === editingProduct.id ? (result.id ? result : { ...p, ...formData }) : p))
+          );
           setIsModalOpen(false);
           loadData();
         } else {
-          showToast('Erreur lors de la mise à jour.', 'error');
+          showToast(result.error || 'Erreur lors de la mise à jour.', 'error');
         }
       } else {
         // Création
         const res = await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
           body: JSON.stringify(formData),
         });
 
+        const result = await res.json().catch(() => ({}));
+
         if (res.ok) {
           showToast('Nouveau produit ajouté au catalogue !', 'success');
+          if (result.id) {
+            setProducts((prev) => [result, ...prev]);
+          }
           setIsModalOpen(false);
           loadData();
         } else {
-          showToast('Erreur lors de l’ajout du produit.', 'error');
+          showToast(result.error || 'Erreur lors de l’ajout du produit.', 'error');
         }
       }
     } catch {
-      showToast('Erreur réseau.', 'error');
+      showToast('Erreur réseau lors de l’enregistrement.', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1017,9 +1035,17 @@ export default function AdminProductsPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-md"
+                    disabled={isSaving}
+                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold shadow-md flex items-center gap-2"
                   >
-                    {editingProduct ? 'Enregistrer les modifications' : 'Créer le produit'}
+                    {isSaving ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Enregistrement en cours...</span>
+                      </>
+                    ) : (
+                      editingProduct ? 'Enregistrer les modifications' : 'Créer le produit'
+                    )}
                   </button>
                 </div>
               </form>
