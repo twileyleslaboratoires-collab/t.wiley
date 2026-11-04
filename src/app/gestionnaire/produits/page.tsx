@@ -122,7 +122,7 @@ export default function AdminProductsPage() {
 
   const handleOpenEditModal = (product: Product) => {
     setEditingProduct(product);
-    const existingVideos = Array.isArray(product.videos) && product.videos.length > 0
+    const existingVideos = Array.isArray(product.videos)
       ? product.videos.filter(Boolean)
       : (product.videoUrl ? [product.videoUrl] : []);
 

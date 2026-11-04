@@ -32,19 +32,19 @@ export function toSupabaseProduct(p: Partial<Product>) {
   const videos = Array.isArray(p.videos)
     ? p.videos.filter(Boolean)
     : (p.videoUrl ? [p.videoUrl] : []);
-  const videoUrl = p.videoUrl || (videos.length > 0 ? videos[0] : '');
-  const showVideo = p.showVideo !== false;
+  const videoUrl = videos.length > 0 ? (p.videoUrl || videos[0]) : '';
+  const showVideo = Boolean(p.showVideo) && videos.length > 0;
 
-  if (videos.length > 0 || videoUrl) {
-    baseChars.push({
-      label: '__tw_media__',
-      value: JSON.stringify({
-        videos,
-        videoUrl,
-        showVideo,
-      }),
-    });
-  }
+  // IMPORTANT : Toujours enregistrer __tw_media__ même avec videos: [] et videoUrl: ""
+  // afin d'indiquer formellement que les vidéos ont été supprimées et empêcher toute résurrection
+  baseChars.push({
+    label: '__tw_media__',
+    value: JSON.stringify({
+      videos,
+      videoUrl,
+      showVideo,
+    }),
+  });
 
   row.characteristics = baseChars;
   return row;
@@ -56,26 +56,23 @@ export function fromSupabaseProduct(row: any, fallback?: Partial<Product>): Prod
     : (row.main_image ? [row.main_image] : (fallback?.images || []));
 
   // Extraction sécurisée des vidéos et médias depuis characteristics (__tw_media__) ou fallback
-  let videos: string[] = fallback?.videos || (fallback?.videoUrl ? [fallback.videoUrl] : []);
-  let videoUrl: string = fallback?.videoUrl || (videos.length > 0 ? videos[0] : '');
-  let showVideo: boolean = fallback?.showVideo !== false;
+  let hasTwMedia = false;
+  let videos: string[] = [];
+  let videoUrl: string = '';
+  let showVideo: boolean = false;
 
   const cleanCharacteristics: Array<{ label: string; value: string }> = [];
   if (Array.isArray(row.characteristics)) {
     for (const c of row.characteristics) {
       if (!c) continue;
       if (c.label === '__tw_media__' && typeof c.value === 'string') {
+        hasTwMedia = true;
         try {
           const parsed = JSON.parse(c.value);
-          if (Array.isArray(parsed.videos) && parsed.videos.length > 0) {
-            videos = parsed.videos.filter(Boolean);
-          }
-          if (parsed.videoUrl) {
-            videoUrl = parsed.videoUrl;
-          }
-          if (parsed.showVideo !== undefined) {
-            showVideo = Boolean(parsed.showVideo);
-          }
+          // Si __tw_media__ est présent dans la ligne Supabase, il a priorité absolue
+          videos = Array.isArray(parsed.videos) ? parsed.videos.filter(Boolean) : [];
+          videoUrl = videos.length > 0 ? (parsed.videoUrl || videos[0]) : '';
+          showVideo = Boolean(parsed.showVideo) && videos.length > 0;
         } catch {
           // Ignorer
         }
@@ -85,10 +82,18 @@ export function fromSupabaseProduct(row: any, fallback?: Partial<Product>): Prod
     }
   }
 
-  if (videos.length > 0 && !videoUrl) {
-    videoUrl = videos[0];
-  } else if (videoUrl && videos.length === 0) {
-    videos = [videoUrl];
+  // Si et seulement si __tw_media__ n'a JAMAIS été présent dans Supabase, utiliser le fallback
+  if (!hasTwMedia && fallback) {
+    videos = Array.isArray(fallback.videos)
+      ? fallback.videos.filter(Boolean)
+      : (fallback.videoUrl ? [fallback.videoUrl] : []);
+    videoUrl = videos[0] || fallback.videoUrl || '';
+    showVideo = fallback.showVideo !== false && videos.length > 0;
+  }
+
+  if (videos.length === 0) {
+    videoUrl = '';
+    showVideo = false;
   }
 
   return {

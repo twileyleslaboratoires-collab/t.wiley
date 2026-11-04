@@ -104,7 +104,7 @@ export default function ProductDetailClient({
 
   // Liste des vidéos
   const allVideos = React.useMemo(() => {
-    if (Array.isArray(product.videos) && product.videos.length > 0) {
+    if (Array.isArray(product.videos)) {
       return product.videos.filter(Boolean);
     }
     return product.videoUrl ? [product.videoUrl] : [];

@@ -76,9 +76,30 @@ export async function PUT(
       if (cat) categoryName = cat.name;
     }
 
-    const updatedVideos = Array.isArray(body.videos)
-      ? body.videos.filter(Boolean)
-      : (body.videoUrl ? [body.videoUrl] : (existingProduct.videos || (existingProduct.videoUrl ? [existingProduct.videoUrl] : [])));
+    // Gestion explicite et stricte des vidéos (suppression ou ajout)
+    let updatedVideos: string[];
+    let updatedVideoUrl: string;
+    let showVideo: boolean;
+
+    if (Array.isArray(body.videos)) {
+      updatedVideos = body.videos.filter(Boolean);
+      updatedVideoUrl = updatedVideos.length > 0 ? (body.videoUrl || updatedVideos[0]) : '';
+      showVideo = updatedVideos.length > 0 && body.showVideo !== false;
+    } else if (body.videoUrl !== undefined) {
+      updatedVideoUrl = body.videoUrl ? String(body.videoUrl).trim() : '';
+      updatedVideos = updatedVideoUrl ? [updatedVideoUrl] : [];
+      showVideo = updatedVideos.length > 0 && body.showVideo !== false;
+    } else {
+      updatedVideos = Array.isArray(existingProduct.videos)
+        ? existingProduct.videos.filter(Boolean)
+        : (existingProduct.videoUrl ? [existingProduct.videoUrl] : []);
+      updatedVideoUrl = updatedVideos[0] || existingProduct.videoUrl || '';
+      showVideo = existingProduct.showVideo !== false && updatedVideos.length > 0;
+    }
+
+    if (body.showVideo !== undefined && updatedVideos.length > 0) {
+      showVideo = Boolean(body.showVideo);
+    }
 
     const updatedCharacteristics = Array.isArray(body.characteristics)
       ? body.characteristics.filter((c: any) => c && (String(c.label || '').trim() || String(c.value || '').trim()))
@@ -91,7 +112,8 @@ export async function PUT(
       categoryName,
       characteristics: updatedCharacteristics,
       videos: updatedVideos,
-      videoUrl: updatedVideos[0] || body.videoUrl || existingProduct.videoUrl || '',
+      videoUrl: updatedVideoUrl,
+      showVideo,
       price: body.price !== undefined ? Number(body.price) : existingProduct.price,
       stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : existingProduct.stockQuantity,
       updatedAt: now,
