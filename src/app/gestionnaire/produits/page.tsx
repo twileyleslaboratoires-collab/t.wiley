@@ -28,6 +28,7 @@ import MediaUploader from '@/components/admin/MediaUploader';
 import { Product, Category, AvailabilityStatus } from '@/types';
 import { formatPriceFCFA } from '@/lib/whatsapp';
 import { useToast } from '@/context/ToastContext';
+import { compressImage } from '@/lib/image-compress';
 
 export default function AdminProductsPage() {
   const { showToast } = useToast();
@@ -217,16 +218,21 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Upload de plusieurs photos en une seule sélection depuis l'explorateur
+  // Upload de plusieurs photos en une seule sélection depuis l'explorateur (avec compression instantanée)
   const handleMultipleImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const rawFiles = e.target.files;
+    if (!rawFiles || rawFiles.length === 0) return;
 
     try {
       setUploadingMultiple(true);
+      // Compression simultanée en mémoire de toutes les photos pour upload ultra-rapide
+      const compressedFiles = await Promise.all(
+        Array.from(rawFiles).map((f) => compressImage(f))
+      );
+
       const data = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        data.append('files', files[i]);
+      for (let i = 0; i < compressedFiles.length; i++) {
+        data.append('files', compressedFiles[i]);
       }
 
       const res = await fetch('/api/upload', {
@@ -375,7 +381,12 @@ export default function AdminProductsPage() {
           body: JSON.stringify(payload),
         });
 
-        const result = await res.json().catch(() => ({}));
+        let result: any = {};
+        try {
+          result = await res.json();
+        } catch {
+          result = { error: `Erreur de communication (${res.status}). Veuillez réessayer.` };
+        }
 
         if (res.ok) {
           showToast('Nouveau produit ajouté au catalogue !', 'success');
@@ -385,7 +396,7 @@ export default function AdminProductsPage() {
           setIsModalOpen(false);
           loadData();
         } else {
-          showToast(result.error || 'Erreur lors de l’ajout du produit.', 'error');
+          showToast(result.error || `Erreur lors de l’ajout du produit (${res.status}).`, 'error');
         }
       }
     } catch {

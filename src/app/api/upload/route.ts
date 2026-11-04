@@ -43,26 +43,6 @@ const ALLOWED_EXTENSIONS = new Set([
 const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024; // 15 Mo
 const MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024; // 50 Mo
 
-/**
- * Assure que le bucket de stockage public 'uploads' existe dans Supabase
- */
-let bucketChecked = false;
-async function ensureSupabaseBucket(supabase: any) {
-  if (bucketChecked) return;
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const hasBucket = (buckets || []).some((b: any) => b.name === 'uploads');
-    if (!hasBucket) {
-      await supabase.storage.createBucket('uploads', {
-        public: true,
-        fileSizeLimit: MAX_VIDEO_SIZE_BYTES,
-      });
-    }
-    bucketChecked = true;
-  } catch (err) {
-    console.warn('Avertissement vérification bucket Supabase:', err);
-  }
-}
 
 export async function POST(request: Request) {
   if (!isUserAdmin()) {
@@ -84,34 +64,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Aucun fichier reçu.' }, { status: 400 });
     }
 
-    const urls: string[] = [];
     const timestamp = Date.now();
     const supabaseClient = isSupabaseConfigured() ? getServiceSupabase() : null;
 
-    if (supabaseClient) {
-      await ensureSupabaseBucket(supabaseClient);
-    }
-
-    for (let i = 0; i < allFiles.length; i++) {
-      const file = allFiles[i];
-      if (!file || typeof file === 'string' || !file.name) continue;
+    // Traitement simultané (en parallèle) de tous les fichiers pour une vitesse maximale
+    const uploadPromises = allFiles.map(async (file, index) => {
+      if (!file || typeof file === 'string' || !file.name) return null;
 
       // 1. Validation de l'extension
       const rawExt = path.extname(file.name).toLowerCase();
       if (!ALLOWED_EXTENSIONS.has(rawExt)) {
-        return NextResponse.json(
-          { error: `Format de fichier non autorisé : "${rawExt}". Formats acceptés : JPG, PNG, WEBP, GIF, MP4, WEBM, MOV.` },
-          { status: 400 }
+        throw new Error(
+          `Format de fichier non autorisé : "${rawExt}". Formats acceptés : JPG, PNG, WEBP, GIF, MP4, WEBM, MOV.`
         );
       }
 
       // 2. Validation du type MIME
       const mime = file.type?.toLowerCase();
       if (mime && !ALLOWED_MIME_TYPES.has(mime) && !mime.startsWith('image/') && !mime.startsWith('video/')) {
-        return NextResponse.json(
-          { error: `Type MIME non autorisé : "${mime}".` },
-          { status: 400 }
-        );
+        throw new Error(`Type MIME non autorisé : "${mime}".`);
       }
 
       // 3. Validation de la taille maximale
@@ -126,9 +97,8 @@ export async function POST(request: Request) {
       const maxSize = isVideo ? MAX_VIDEO_SIZE_BYTES : MAX_IMAGE_SIZE_BYTES;
       if (file.size > maxSize) {
         const maxMb = isVideo ? 50 : 15;
-        return NextResponse.json(
-          { error: `Le fichier "${file.name}" dépasse la taille maximale autorisée de ${maxMb} Mo.` },
-          { status: 400 }
+        throw new Error(
+          `Le fichier "${file.name}" dépasse la taille maximale autorisée de ${maxMb} Mo.`
         );
       }
 
@@ -137,10 +107,10 @@ export async function POST(request: Request) {
 
       // 4. Génération d'un nom de fichier unique et sécurisé
       const randomSuffix = crypto.randomBytes(8).toString('hex');
-      const uniqueFileName = `${timestamp}-${randomSuffix}${rawExt}`;
+      const uniqueFileName = `${timestamp}-${index}-${randomSuffix}${rawExt}`;
       let fileUrl = '';
 
-      // Priorité 1 : Stockage Cloud Supabase (permanent, résistant aux redémarrages Vercel et CDN haute vitesse)
+      // Priorité 1 : Stockage Cloud Supabase (permanent, CDN haute vitesse mondial)
       if (supabaseClient) {
         try {
           const effectiveMime = mime || (isVideo ? 'video/mp4' : 'image/jpeg');
@@ -176,24 +146,25 @@ export async function POST(request: Request) {
           fs.writeFileSync(filePath, buffer);
           fileUrl = `/uploads/${uniqueFileName}`;
         } catch (fsErr) {
-          console.warn('Écriture disque public/uploads impossible (système de fichiers en lecture seule):', fsErr);
+          console.warn('Écriture disque public/uploads impossible (système en lecture seule):', fsErr);
 
-          // Priorité 3 : Repli Base64 inline pour images < 4 Mo si Vercel est déployé sans Supabase Storage
-          if (!isVideo && buffer.length <= 4 * 1024 * 1024) {
+          // Si Vercel sans Supabase Storage pour de petites images (< 500 Ko)
+          if (!isVideo && buffer.length <= 500 * 1024) {
             const effectiveMime = mime || 'image/jpeg';
             fileUrl = `data:${effectiveMime};base64,${buffer.toString('base64')}`;
           } else {
             throw new Error(
-              "Impossible d'enregistrer le fichier sur le stockage. Veuillez vérifier la connexion Supabase ou utiliser un fichier plus compact."
+              "Impossible d'enregistrer le fichier sur le stockage. Veuillez vérifier la connexion."
             );
           }
         }
       }
 
-      if (fileUrl) {
-        urls.push(fileUrl);
-      }
-    }
+      return fileUrl;
+    });
+
+    const results = await Promise.all(uploadPromises);
+    const urls = results.filter((u): u is string => Boolean(u));
 
     if (urls.length === 0) {
       return NextResponse.json({ error: 'Aucun fichier valide n’a pu être traité.' }, { status: 400 });

@@ -81,42 +81,64 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    if (!body.name || !body.price) {
-      return NextResponse.json({ error: 'Le nom et le prix sont obligatoires.' }, { status: 400, headers: NO_CACHE_HEADERS });
+    if (!body.name || !String(body.name).trim()) {
+      return NextResponse.json({ error: 'Le nom du produit est obligatoire.' }, { status: 400, headers: NO_CACHE_HEADERS });
+    }
+
+    const priceNum =
+      body.price !== undefined && body.price !== null && String(body.price).trim() !== ''
+        ? Number(body.price)
+        : 0;
+
+    if (isNaN(priceNum) || priceNum < 0) {
+      return NextResponse.json(
+        { error: 'Le prix du produit doit être un montant valide (supérieur ou égal à 0).' },
+        { status: 400, headers: NO_CACHE_HEADERS }
+      );
     }
 
     const db = getDatabase();
-    const slug = (body.slug || body.name)
+
+    // Génération d'un slug unique sans aucune collision possible
+    const baseSlug = (body.slug || body.name)
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/^-+|-+$/g, '') || `produit-${Date.now()}`;
+
+    let slug = baseSlug;
+    let collisionCounter = 1;
+    while (db.products.some((p) => p.slug === slug)) {
+      slug = `${baseSlug}-${collisionCounter++}`;
+    }
 
     // Récupérer le nom de la catégorie correspondante
     const category = db.categories.find((c) => c.id === body.categoryId);
 
     const now = new Date().toISOString();
     const newProduct: Product = {
-      id: `prod-${Date.now()}`,
-      slug: slug || `produit-${Date.now()}`,
+      id: `prod-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      slug,
       name: body.name.trim(),
       shortDescription: body.shortDescription || '',
       fullDescription: body.fullDescription || '',
-      categoryId: body.categoryId || (db.categories[0]?.id ?? 'cat-entretien'),
-      categoryName: category?.name || (db.categories[0]?.name ?? "Produits d'entretien"),
-      price: Number(body.price),
+      categoryId: body.categoryId || (db.categories[0]?.id ?? 'cat-cosmetiques'),
+      categoryName: category?.name || (db.categories[0]?.name ?? 'Cosmétiques & Soins'),
+      price: priceNum,
       currency: 'FCFA',
       packaging: body.packaging || 'Unité',
       mainImage: body.mainImage || 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80',
-      images: Array.isArray(body.images) && body.images.length > 0 ? body.images : [body.mainImage || 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80'],
+      images: Array.isArray(body.images) && body.images.length > 0
+        ? body.images
+        : [body.mainImage || 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=800&q=80'],
       sku: body.sku || '',
       originalPrice: body.originalPrice ? Number(body.originalPrice) : undefined,
       videoUrl: (Array.isArray(body.videos) && body.videos.filter(Boolean)[0]) || (body.videoUrl ? String(body.videoUrl).trim() : ''),
       videos: Array.isArray(body.videos) ? body.videos.filter(Boolean) : (body.videoUrl ? [String(body.videoUrl).trim()] : []),
       showVideo: (Array.isArray(body.videos) ? body.videos.filter(Boolean).length > 0 : Boolean(body.videoUrl)) && body.showVideo !== false,
-      order: body.order !== undefined ? Number(body.order) : 0,
+      order: body.order !== undefined ? Number(body.order) : db.products.length + 1,
       availability: body.availability || 'in_stock',
-      stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 10,
+      stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 50,
       isPublished: body.isPublished !== undefined ? Boolean(body.isPublished) : true,
       isFeatured: Boolean(body.isFeatured),
       characteristics: Array.isArray(body.characteristics)
@@ -135,7 +157,10 @@ export async function POST(request: Request) {
         const supabase = getServiceSupabase();
         if (supabase) {
           const row = toSupabaseProduct(newProduct);
-          await supabase.from('products').insert(row);
+          const { error: supaErr } = await supabase.from('products').upsert(row, { onConflict: 'id' });
+          if (supaErr) {
+            console.warn('Avertissement upsert Supabase products:', supaErr);
+          }
         }
       } catch (supaErr) {
         console.warn('Erreur insertion Supabase products:', supaErr);
@@ -144,11 +169,16 @@ export async function POST(request: Request) {
 
     try {
       revalidatePath('/', 'layout');
+      revalidatePath('/categories', 'page');
+      revalidatePath('/gestionnaire/produits', 'page');
     } catch {}
 
     return NextResponse.json(newProduct, { status: 201, headers: NO_CACHE_HEADERS });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur POST /api/products:', error);
-    return NextResponse.json({ error: 'Erreur lors de la création du produit.' }, { status: 500, headers: NO_CACHE_HEADERS });
+    return NextResponse.json(
+      { error: error?.message || 'Erreur lors de la création du produit.' },
+      { status: 500, headers: NO_CACHE_HEADERS }
+    );
   }
 }

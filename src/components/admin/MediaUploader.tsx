@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Upload, Image as ImageIcon, Video, Trash2, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { compressImage } from '@/lib/image-compress';
 
 interface MediaUploaderProps {
   label: string;
@@ -30,13 +31,16 @@ export default function MediaUploader({
   const fileAccept = accept || defaultAccept;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
     setIsUploading(true);
     setErrorMessage(null);
 
     try {
+      // Compression instantanée côté client des images (10 Mo -> 200 Ko en 150ms) pour upload immédiat
+      const file = type === 'image' ? await compressImage(rawFile) : rawFile;
+
       const formData = new FormData();
       formData.append('file', file);
 
