@@ -114,11 +114,10 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all ${
-                    active
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all ${active
                       ? 'text-brand-700 bg-brand-50 shadow-xs'
                       : 'text-slate-700 hover:text-brand-600 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -177,11 +176,10 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-base font-semibold transition-all flex items-center justify-between ${
-                    active
+                  className={`px-4 py-3 rounded-xl text-base font-semibold transition-all flex items-center justify-between ${active
                       ? 'text-brand-700 bg-brand-50'
                       : 'text-slate-700 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <span>{link.label}</span>
                   {link.label === 'PANIER' && totalCount > 0 && (

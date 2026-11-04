@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Layers, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Layers, ArrowRight } from 'lucide-react';
 import { getDatabase } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
@@ -15,16 +15,7 @@ export const metadata: Metadata = {
 
 export default function CategoriesPage() {
   const db = getDatabase();
-  const publishedProducts = db.products.filter((p) => p.isPublished);
-
-  // Compter les produits par catégorie
-  const categoriesWithCounts = db.categories.map((cat) => {
-    const count = publishedProducts.filter((p) => p.categoryId === cat.id).length;
-    return {
-      ...cat,
-      productCount: count,
-    };
-  });
+  const categories = db.categories;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -45,7 +36,7 @@ export default function CategoriesPage() {
 
       {/* Grille des catégories */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {categoriesWithCounts.map((category) => (
+        {categories.map((category) => (
           <div
             key={category.id}
             className="group bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
@@ -58,12 +49,6 @@ export default function CategoriesPage() {
                   alt={category.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm flex items-center gap-1.5">
-                  <ShoppingBag className="w-3.5 h-3.5 text-brand-600" />
-                  <span>
-                    {category.productCount} produit{category.productCount > 1 ? 's' : ''}
-                  </span>
-                </div>
               </div>
 
               <div className="p-6">

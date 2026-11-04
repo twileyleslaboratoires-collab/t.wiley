@@ -368,15 +368,12 @@ export default function BoutiqueCatalog({
                 onChange={(e) => handleCategorySelect(e.target.value)}
                 className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 w-full sm:w-auto"
               >
-                <option value="all">Toutes les catégories ({products.length})</option>
-                {currentCategories.map((cat) => {
-                  const count = products.filter((p) => p.categoryId === cat.id).length;
-                  return (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name} ({count})
-                    </option>
-                  );
-                })}
+                <option value="all">Toutes les catégories</option>
+                {currentCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
 
               <select
