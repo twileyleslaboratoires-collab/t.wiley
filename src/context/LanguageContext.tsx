@@ -168,7 +168,33 @@ const LanguageContext = createContext<LanguageContextType>({
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('fr');
 
+  // Suppression continue et instantanée de tout bandeau Google Translate
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const cleanGoogleBar = () => {
+      const banners = document.querySelectorAll('iframe.goog-te-banner-frame, .goog-te-banner-frame, iframe.skiptranslate');
+      banners.forEach((banner) => {
+        const el = banner as HTMLElement;
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
+        el.style.setProperty('height', '0px', 'important');
+        el.style.setProperty('opacity', '0', 'important');
+      });
+
+      if (document.body && document.body.style.top && document.body.style.top !== '0px') {
+        document.body.style.setProperty('top', '0px', 'important');
+      }
+    };
+
+    const interval = setInterval(cleanGoogleBar, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Préchargement discret de Google Translate dès le démarrage
+    loadGoogleTranslateScript();
+
     // Initialisation depuis localStorage ou cookie
     try {
       const saved = localStorage.getItem('twiley_language') as Language | null;
@@ -213,6 +239,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.body.appendChild(s);
   };
 
+  const triggerGoogleTranslation = (targetLang: 'fr' | 'en') => {
+    if (typeof window === 'undefined') return;
+
+    let attempts = 0;
+    const maxAttempts = 40; // 4 secondes de tentative pour capter le combo
+    const interval = setInterval(() => {
+      attempts++;
+      const combo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (combo) {
+        if (combo.value !== targetLang) {
+          combo.value = targetLang;
+          combo.dispatchEvent(new Event('change'));
+        }
+        clearInterval(interval);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 100);
+  };
+
   const applyDocumentLanguage = (lang: Language) => {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
@@ -220,29 +266,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         document.cookie = 'googtrans=/fr/en; path=/';
         document.cookie = 'googtrans=/fr/en; path=/; domain=' + window.location.hostname;
         loadGoogleTranslateScript();
-
-        // Si le script est déjà chargé, changer la valeur du sélecteur google
-        try {
-          const combo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-          if (combo && combo.value !== 'en') {
-            combo.value = 'en';
-            combo.dispatchEvent(new Event('change'));
-          }
-        } catch {
-          // Ignorer
-        }
+        triggerGoogleTranslation('en');
       } else {
         document.cookie = 'googtrans=/fr/fr; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
         document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-        try {
-          const combo = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-          if (combo && combo.value !== 'fr') {
-            combo.value = 'fr';
-            combo.dispatchEvent(new Event('change'));
-          }
-        } catch {
-          // Ignorer
-        }
+        triggerGoogleTranslation('fr');
       }
     }
   };
