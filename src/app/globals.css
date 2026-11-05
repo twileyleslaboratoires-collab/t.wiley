@@ -137,16 +137,13 @@ body {
    ANIMATION ZOOM EN BOUCLE : USA, AFRIQUE, CÔTE D'IVOIRE
    ======================================================== */
 :root {
-  --spotlight-duration: 30s;
-  /* Durée totale d'un cycle (3s par élément) */
-  --spotlight-zoom: 3;
-  /* Force du zoom sur écran standard / ordinateur */
+  --spotlight-duration: 12s; /* Durée totale : 4s par élément (12s au total) */
+  --spotlight-zoom: 5;       /* Force du zoom demandée : 5 */
 }
 
 @media (max-width: 640px) {
   :root {
-    --spotlight-zoom: 2;
-    /* Force du zoom adaptée sur mobile pour ne pas déborder */
+    --spotlight-zoom: 3.6;   /* Force du zoom adaptée sur mobile */
   }
 }
 
@@ -154,49 +151,50 @@ body {
   0% {
     transform: scale(1);
     z-index: 1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     filter: brightness(0.95);
   }
 
-  /* Montée en zoom vers l'avant */
-  6% {
+  /* Montée en zoom vers l'avant (passe au premier plan) */
+  2% {
     z-index: 50;
   }
 
-  11% {
-    transform: scale(var(--spotlight-zoom, 2.5));
+  8% {
+    transform: scale(var(--spotlight-zoom, 5));
     z-index: 50;
-    box-shadow: 0 20px 45px -5px rgba(0, 0, 0, 0.9), 0 0 25px rgba(2, 106, 200, 0.4);
+    box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.95), 0 0 30px rgba(2, 106, 200, 0.45);
     filter: brightness(1.1);
   }
 
   /* Maintien en grand */
-  21% {
-    transform: scale(var(--spotlight-zoom, 2.5));
+  18% {
+    transform: scale(var(--spotlight-zoom, 5));
     z-index: 50;
-    box-shadow: 0 20px 45px -5px rgba(0, 0, 0, 0.9), 0 0 25px rgba(2, 106, 200, 0.4);
+    box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.95), 0 0 30px rgba(2, 106, 200, 0.45);
     filter: brightness(1.1);
   }
 
-  /* Retour ralenti et doux vers la taille initiale */
-  31% {
+  /* Retour complet à sa taille et sa place d'origine avant l'arrivée du suivant */
+  26% {
     transform: scale(1);
     z-index: 10;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     filter: brightness(0.95);
   }
 
-  33.333% {
+  27% {
     transform: scale(1);
     z-index: 1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     filter: brightness(0.95);
   }
 
+  /* Repos absolu pendant que les autres s'animent tour à tour */
   100% {
     transform: scale(1);
     z-index: 1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     filter: brightness(0.95);
   }
 }
@@ -204,7 +202,7 @@ body {
 .spotlight-card {
   transform-origin: center center;
   animation-name: showcaseSpotlightZoom;
-  animation-duration: var(--spotlight-duration, 9s);
+  animation-duration: var(--spotlight-duration, 12s);
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   will-change: transform, z-index;
@@ -215,11 +213,11 @@ body {
 }
 
 .spotlight-delay-2 {
-  animation-delay: 3s;
+  animation-delay: 4s;
 }
 
 .spotlight-delay-3 {
-  animation-delay: 6s;
+  animation-delay: 8s;
 }
 
 /* Prise en compte de prefers-reduced-motion pour l'accessibilité */
