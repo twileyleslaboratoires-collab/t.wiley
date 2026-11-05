@@ -20,10 +20,10 @@ export default function IntroScreen({
     try {
       sessionStorage.setItem('twiley_intro_seen', 'true');
     } catch {
-      // sessionStorage unavailable (incognito restrictions)
+      // sessionStorage indisponible (ex: restrictions mode privé)
     }
 
-    // Allow 600ms for smooth exit transition before unmounting
+    // Délai de 600ms pour un fondu de sortie soyeux
     setTimeout(() => {
       setShouldRender(false);
       document.body.style.overflow = '';
@@ -50,7 +50,7 @@ export default function IntroScreen({
       // ignore
     }
 
-    // Préchargement immédiat des images pour un affichage instantané et fluide
+    // Préchargement immédiat des images pour un rendu ultra fluide sans scintillement
     const preload1 = new Image();
     preload1.src = logoUrl;
     const preload2 = new Image();
@@ -61,27 +61,23 @@ export default function IntroScreen({
     document.body.style.overflow = 'hidden';
     document.documentElement.classList.add('twiley-intro-active');
 
-    // Vérification de la préférence d'accessibilité utilisateur (prefers-reduced-motion)
+    // Vérification de l'accessibilité utilisateur (prefers-reduced-motion)
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
     if (prefersReducedMotion) {
-      // En mode mouvement réduit : affichage statique court (1.8s) sans zooms
       timerRef.current = setTimeout(() => {
         dismissIntro();
-      }, 1800);
+      }, 2500);
       return;
     }
 
-    // Durée totale calculée de la séquence (3 éléments x 3.3s + temps de fondu)
-    // Élément 1 (USA) : 0.3s -> 3.5s
-    // Élément 2 (Afrique) : 3.6s -> 6.8s
-    // Élément 3 (Côte d'Ivoire) : 6.9s -> 10.1s
-    // Fin et fondu de sortie automatique à 10.5s
+    // Durée totale : 3 éléments avec grand zoom (~3.4s chacun) + temps de lecture
+    // Fin et fondu de sortie automatique à 13.5s
     timerRef.current = setTimeout(() => {
       dismissIntro();
-    }, 10500);
+    }, 13500);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -100,20 +96,20 @@ export default function IntroScreen({
       role="dialog"
       aria-modal="true"
       aria-label="Introduction - Les Laboratoires T. Wiley"
-      className={`fixed inset-0 z-[9999] flex flex-col justify-between items-center select-none bg-slate-950 transition-opacity duration-700 ease-out overflow-hidden ${
+      className={`fixed inset-0 z-[9999] flex flex-col justify-between items-center select-none bg-slate-950 transition-opacity duration-700 ease-out overflow-y-auto overflow-x-hidden ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{
         background:
-          'radial-gradient(circle at 50% 45%, #0b1a32 0%, #030712 70%, #020408 100%)',
+          'radial-gradient(circle at 50% 30%, #0c2044 0%, #030712 65%, #010307 100%)',
       }}
     >
       {/* Bouton discret "Passer" en haut à droite */}
-      <div className="w-full max-w-7xl px-4 sm:px-6 pt-4 sm:pt-6 flex justify-end z-50">
+      <div className="w-full max-w-7xl px-4 sm:px-6 pt-3 sm:pt-5 flex justify-end z-50">
         <button
           type="button"
           onClick={dismissIntro}
-          className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-xs sm:text-sm font-medium text-slate-300 hover:text-white border border-white/15 backdrop-blur-md shadow-lg transition-all duration-200 cursor-pointer"
+          className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-xs sm:text-sm font-medium text-slate-300 hover:text-white border border-white/20 backdrop-blur-md shadow-lg transition-all duration-200 cursor-pointer"
           aria-label="Passer l'introduction"
         >
           <span>Passer</span>
@@ -123,26 +119,26 @@ export default function IntroScreen({
         </button>
       </div>
 
-      {/* SECTION DU HAUT : LOGO DES LABORATOIRES T. WILEY (STATIQUE, BIEN VISIBLE, SANS ZOOM) */}
-      <div className="flex flex-col items-center text-center px-4 pt-2 sm:pt-4 z-20">
+      {/* SECTION DU HAUT : LOGO DU LABORATOIRE (STATIQUE, BIEN VISIBLE, SANS ZOOM) */}
+      <div className="flex flex-col items-center text-center px-4 pt-1 sm:pt-2 z-20">
         <div className="relative p-1.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md shadow-2xl">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoUrl}
-            alt="Laboratoires T. Wiley Logo"
-            className="h-14 sm:h-18 md:h-22 w-auto object-contain rounded-xl shadow-md"
+            alt="Les Laboratoires T. Wiley"
+            className="h-12 sm:h-16 md:h-20 w-auto object-contain rounded-xl shadow-md"
           />
         </div>
-        <h1 className="mt-3 text-lg sm:text-2xl font-bold tracking-wider text-white drop-shadow-md uppercase">
-          Les Laboratoires T. Wiley
+        <h1 className="mt-2.5 text-lg sm:text-2xl md:text-3xl font-extrabold tracking-wider text-white drop-shadow-md uppercase">
+          Les Laboratoires T.WILEY
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-cyan-200/80 font-medium tracking-wide">
+        <p className="mt-0.5 text-xs sm:text-sm text-cyan-300/90 font-medium tracking-wide">
           Excellence, Savoir-faire &amp; Qualité Internationale
         </p>
       </div>
 
-      {/* SECTION CENTRALE : LES 3 ÉLÉMENTS ALIGNÉS SUR UNE LIGNE (TAILLE FIXE, ZOOM TOUR À TOUR) */}
-      <div className="w-full flex flex-col items-center justify-center my-auto py-8 sm:py-12 z-30 overflow-visible">
+      {/* SECTION CENTRALE : LES 3 ÉLÉMENTS ALIGNÉS SUR UNE LIGNE (TAILLE FIXE, GRAND ZOOM TOUR À TOUR) */}
+      <div className="w-full flex flex-col items-center justify-center my-auto py-5 sm:py-8 z-30 overflow-visible">
         <div
           className="relative flex items-center justify-center gap-6 sm:gap-10 md:gap-14 overflow-visible px-4"
           style={{ width: 'auto' }}
@@ -191,14 +187,28 @@ export default function IntroScreen({
           </div>
         </div>
 
-        {/* Sous-titre élégant sous la ligne des drapeaux */}
-        <p className="mt-8 text-xs sm:text-sm text-slate-400 font-light tracking-widest uppercase">
+        {/* Sous-titre sous les drapeaux */}
+        <p className="mt-5 text-[11px] sm:text-xs text-slate-400 font-light tracking-widest uppercase">
           Amérique &bull; Afrique &bull; Côte d&apos;Ivoire
         </p>
       </div>
 
+      {/* SECTION DE TEXTE DE PRÉSENTATION OFFICIELLE */}
+      <div className="w-full max-w-3xl px-4 mx-auto mb-4 z-20">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-slate-900/85 border border-cyan-500/30 backdrop-blur-md shadow-2xl text-center space-y-2.5">
+          <p className="text-xs sm:text-sm md:text-[15px] text-slate-200 leading-relaxed font-normal">
+            Les Laboratoires T.WILEY sont une unité spécialisée dans la fabrication des détergents et cosmétiques. Cette entreprise est créée par des Ivoiriens vivant aux US et des nationaux qui ont bien voulu capitaliser leur expérience dans la fabrication des produits de qualité respectant les normes environnementales et sanitaires américaines (EPA et OSHA).
+          </p>
+          <div className="pt-2 border-t border-slate-800/80">
+            <p className="text-[11px] sm:text-xs md:text-sm font-bold tracking-wider text-amber-400 drop-shadow-sm uppercase leading-snug">
+              TOUS NOS PRODUITS SONT FORMULÉS ET FABRIQUÉS DANS LES PROPORTIONS STŒCHIOMÉTRIQUES CONFORMÉMENT AUX NORMES
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* SECTION DU BAS : MENTION DISCRÈTE */}
-      <div className="w-full pb-5 sm:pb-7 text-center z-20">
+      <div className="w-full pb-4 sm:pb-6 text-center z-20">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-800 text-[11px] sm:text-xs text-slate-400">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>Bienvenue sur notre plateforme officielle</span>
@@ -207,4 +217,3 @@ export default function IntroScreen({
     </div>
   );
 }
-

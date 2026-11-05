@@ -162,7 +162,7 @@ export const INITIAL_COMPANY_INFO: CompanyInfo = {
   slogan: 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique',
   activities: 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique',
   logo: '/logo-laboratoires-t-wiley.jpg',
-  description: 'Les Laboratoires T. Wiley sont spécialisés dans la recherche, la formulation et la commercialisation de produits cosmétiques, détergences hospitalières certifiées, solutions d’hygiène domestique et produits d’entretien mécanique pour particuliers et professionnels.',
+  description: 'Les Laboratoires T.WILEY sont une unité spécialisée dans la fabrication des détergents et cosmétiques. Cette entreprise est créée par des Ivoiriens vivant aux US et des nationaux qui ont bien voulu capitaliser leur expérience dans la fabrication des produits de qualité respectant les normes environnementales et sanitaires américaines (EPA et OSHA). TOUS NOS PRODUITS SONT FORMULÉS ET FABRIQUÉS DANS LES PROPORTIONS STŒCHIOMÉTRIQUES CONFORMÉMENT AUX NORMES.',
   phone1: '07 67 62 64 68',
   phone2: '01 40 98 64 64',
   phone3: '27 31 62 41 83',

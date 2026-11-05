@@ -270,13 +270,13 @@ body {
    ÉCRAN D'INTRODUCTION PLEIN ÉCRAN (INTRO SCREEN)
    ======================================================== */
 :root {
-  --intro-zoom: 3.2;              /* Force du grand zoom sur ordinateur (~scale(3)) */
-  --intro-elem-duration: 3.3s;    /* Durée d'animation lente et fluide par élément (~3s) */
+  --intro-zoom: 5.0;              /* Force du grand zoom sur ordinateur augmentée (~scale(5)) */
+  --intro-elem-duration: 3.4s;    /* Durée d'animation lente et fluide par élément */
 }
 
 @media (max-width: 640px) {
   :root {
-    --intro-zoom: 2.1;            /* Force du zoom adaptée aux mobiles (~scale(2)) */
+    --intro-zoom: 3.2;            /* Force du zoom augmentée sur mobile (~scale(3.2)) */
   }
 }
 
@@ -295,18 +295,18 @@ body {
 
   /* Montée douce vers l'avant (grand zoom vers l'utilisateur) */
   32% {
-    transform: scale(var(--intro-zoom, 3.2));
+    transform: scale(var(--intro-zoom, 5.0));
     z-index: 100;
-    box-shadow: 0 30px 65px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(2, 106, 200, 0.6);
-    filter: brightness(1.1);
+    box-shadow: 0 35px 80px -10px rgba(0, 0, 0, 0.95), 0 0 50px rgba(2, 106, 200, 0.7);
+    filter: brightness(1.12);
   }
 
   /* Maintien en grand pendant environ 1 seconde */
   65% {
-    transform: scale(var(--intro-zoom, 3.2));
+    transform: scale(var(--intro-zoom, 5.0));
     z-index: 100;
-    box-shadow: 0 30px 65px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(2, 106, 200, 0.6);
-    filter: brightness(1.1);
+    box-shadow: 0 35px 80px -10px rgba(0, 0, 0, 0.95), 0 0 50px rgba(2, 106, 200, 0.7);
+    filter: brightness(1.12);
   }
 
   /* Retour doux et régulier à sa taille et sa place d'origine */
@@ -329,7 +329,7 @@ body {
 .intro-animated-card {
   transform-origin: center center;
   animation-name: introSingleZoomSequence;
-  animation-duration: var(--intro-elem-duration, 3.3s);
+  animation-duration: var(--intro-elem-duration, 3.4s);
   animation-timing-function: ease-in-out;
   animation-fill-mode: both;
   will-change: transform, z-index;
@@ -341,11 +341,11 @@ body {
 }
 
 .intro-step-2 {
-  animation-delay: 3.6s;
+  animation-delay: 3.7s;
 }
 
 .intro-step-3 {
-  animation-delay: 6.9s;
+  animation-delay: 7.1s;
 }
 
 @media (prefers-reduced-motion: reduce) {
