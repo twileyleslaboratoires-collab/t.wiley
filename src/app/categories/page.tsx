@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Layers, ArrowRight } from 'lucide-react';
-import { getDatabase } from '@/lib/storage';
+import { getLiveCategories } from '@/lib/categories';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,9 +13,8 @@ export const metadata: Metadata = {
     'Découvrez toutes nos gammes de produits : entretien, détergents, cosmétiques et solutions industrielles.',
 };
 
-export default function CategoriesPage() {
-  const db = getDatabase();
-  const categories = db.categories;
+export default async function CategoriesPage() {
+  const categories = await getLiveCategories();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -52,22 +51,22 @@ export default function CategoriesPage() {
               </div>
 
               <div className="p-6">
-                <h2 className="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
                   {category.name}
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                </h3>
+                <p className="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-2">
                   {category.description}
                 </p>
               </div>
             </div>
 
-            <div className="px-6 pb-6 pt-2">
+            <div className="px-6 pb-6">
               <Link
-                href={`/?category=${category.id}`}
-                className="w-full inline-flex items-center justify-center gap-2 bg-slate-50 hover:bg-brand-600 text-slate-700 hover:text-white font-bold text-xs py-3 rounded-xl border border-slate-200 hover:border-transparent transition-all"
+                href={`/?categorie=${category.id}`}
+                className="inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors"
               >
-                <span>Voir les produits associés</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Découvrir les produits</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
@@ -76,4 +75,3 @@ export default function CategoriesPage() {
     </div>
   );
 }
-

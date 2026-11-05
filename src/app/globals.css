@@ -153,6 +153,13 @@ body {
   display: none !important;
 }
 
+/* Isolation stricte de l'espace gestionnaire : aucune traduction automatique externe */
+.notranslate,
+[translate="no"],
+.notranslate * {
+  translate: no !important;
+}
+
 #goog-gt-tt,
 .goog-tooltip,
 .goog-tooltip:hover {

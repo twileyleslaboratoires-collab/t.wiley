@@ -6,9 +6,11 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import MediaUploader from '@/components/admin/MediaUploader';
 import { Category } from '@/types';
 import { useToast } from '@/context/ToastContext';
+import { useAdminLanguage } from '@/context/AdminLanguageContext';
 
 export default function AdminCategoriesPage() {
   const { showToast } = useToast();
+  const { tAdmin } = useAdminLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -140,10 +142,10 @@ export default function AdminCategoriesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Gestion des Catégories
+              {tAdmin('cat.title', 'Gestion des Catégories')}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Organisez les familles de produits présentées dans votre boutique
+              {tAdmin('cat.subtitle', 'Organisez les familles de produits présentées dans votre boutique')}
             </p>
           </div>
 
@@ -152,7 +154,7 @@ export default function AdminCategoriesPage() {
             className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md transition-all"
           >
             <Plus className="w-4 h-4" />
-            Nouvelle catégorie
+            {tAdmin('cat.new_btn', 'Nouvelle catégorie')}
           </button>
         </div>
 
@@ -188,14 +190,14 @@ export default function AdminCategoriesPage() {
                   className="p-2 text-slate-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors text-xs font-semibold inline-flex items-center gap-1"
                 >
                   <Pencil className="w-3.5 h-3.5" />
-                  Modifier
+                  {tAdmin('cat.edit_btn', 'Modifier')}
                 </button>
                 <button
                   onClick={() => handleDelete(cat)}
                   className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors text-xs font-semibold inline-flex items-center gap-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  Supprimer
+                  {tAdmin('cat.delete_btn', 'Supprimer')}
                 </button>
               </div>
             </div>
@@ -209,7 +211,7 @@ export default function AdminCategoriesPage() {
               {/* Entête fixe */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0 bg-white">
                 <h3 className="text-lg sm:text-xl font-black text-slate-900">
-                  {editingCategory ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
+                  {editingCategory ? tAdmin('cat.modal_edit_title', 'Modifier la catégorie') : tAdmin('cat.modal_create_title', 'Nouvelle catégorie')}
                 </h3>
                 <button
                   type="button"
@@ -287,7 +289,7 @@ export default function AdminCategoriesPage() {
                     onClick={() => setIsModalOpen(false)}
                     className="px-4 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-colors"
                   >
-                    Annuler
+                    {tAdmin('cat.cancel', 'Annuler')}
                   </button>
                   <button
                     type="submit"
@@ -297,10 +299,12 @@ export default function AdminCategoriesPage() {
                     {isSaving ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Enregistrement...</span>
+                        <span>{tAdmin('cat.saving', 'Enregistrement...')}</span>
                       </>
                     ) : (
-                      editingCategory ? 'Enregistrer les modifications' : 'Créer la catégorie'
+                      editingCategory
+                        ? tAdmin('cat.save', 'Enregistrer les modifications')
+                        : tAdmin('cat.create', 'Créer la catégorie')
                     )}
                   </button>
                 </div>
