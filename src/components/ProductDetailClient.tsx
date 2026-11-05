@@ -29,6 +29,7 @@ import {
 } from '@/lib/whatsapp';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { useLanguage } from '@/context/LanguageContext';
 import ProductCard from '@/components/ProductCard';
 
 interface ProductDetailClientProps {
@@ -44,6 +45,7 @@ export default function ProductDetailClient({
   similarProducts = [],
   companyInfo: initialCompanyInfo,
 }: ProductDetailClientProps) {
+  const { t } = useLanguage();
   // Données dynamiques avec auto-mise à jour en temps réel
   const [product, setProduct] = useState<Product>(initialProduct);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(initialCompanyInfo);
@@ -396,7 +398,7 @@ export default function ProductDetailClient({
             {/* PRIX (TAILLE OPTIMISÉE ET COMPACTE) */}
             <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-baseline justify-between">
               <div>
-                <span className="text-xs text-slate-500 block font-medium">Prix unitaire</span>
+                <span className="text-xs text-slate-500 block font-medium">{t('detail.unit_price', 'Prix unitaire')}</span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl sm:text-2xl font-black text-brand-700">
                     {formatPriceFCFA(product.price)}
@@ -409,7 +411,7 @@ export default function ProductDetailClient({
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xs text-slate-500 block font-medium">Total estimé</span>
+                <span className="text-xs text-slate-500 block font-medium">{t('detail.estimated_total', 'Total estimé')}</span>
                 <span className="text-base sm:text-lg font-bold text-slate-900">
                   {formatPriceFCFA(product.price * quantity)}
                 </span>
@@ -453,7 +455,7 @@ export default function ProductDetailClient({
             {product.characteristics && product.characteristics.length > 0 && (
               <div className="mt-6 border-t border-slate-100 pt-4">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
-                  Caractéristiques
+                  {t('detail.specs', 'Caractéristiques')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {product.characteristics.map((c, i) => (
@@ -491,7 +493,7 @@ export default function ProductDetailClient({
           <div className="mt-6 pt-4 border-t border-slate-200 space-y-2.5">
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Quantité :
+                {t('detail.quantity', 'Quantité :')}
               </span>
               <div className="flex items-center border border-slate-200 rounded-lg bg-white shadow-2xs">
                 <button
@@ -524,7 +526,7 @@ export default function ProductDetailClient({
               className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all"
             >
               <MessageCircle className="w-4 h-4 fill-white" />
-              COMMANDER SUR WHATSAPP
+              {t('detail.order_whatsapp', 'COMMANDER SUR WHATSAPP')}
             </button>
 
             {/* BOUTON AJOUTER AU PANIER */}
@@ -533,7 +535,7 @@ export default function ProductDetailClient({
               className="w-full flex items-center justify-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold border border-brand-200 transition-colors"
             >
               <ShoppingBag className="w-4 h-4" />
-              Ajouter au panier (plusieurs articles)
+              {t('detail.add_to_cart', 'Ajouter au panier (plusieurs articles)')}
             </button>
           </div>
         </div>

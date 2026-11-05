@@ -106,3 +106,24 @@ body {
   transform-origin: left center;
   animation: flagWave 3.2s ease-in-out infinite;
 }
+
+/* Supprime les bandeaux parasites de Google Translate tout en préservant la traduction */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}

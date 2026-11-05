@@ -4,6 +4,7 @@ import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LiveChatWidget from '@/components/LiveChatWidget';
@@ -88,17 +89,19 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} min-h-screen flex flex-col antialiased bg-slate-50 text-slate-800`}>
         <ThemeProvider initialTheme={theme}>
-          <ToastProvider>
-            <CartProvider>
-              <MobileNavigationGuard />
-              <Navbar initialCompanyInfo={companyInfo} />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer companyInfo={companyInfo} />
-              <LiveChatWidget whatsappNumber={companyInfo.whatsappNumber} />
-            </CartProvider>
-          </ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>
+              <CartProvider>
+                <MobileNavigationGuard />
+                <Navbar initialCompanyInfo={companyInfo} />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer companyInfo={companyInfo} />
+                <LiveChatWidget whatsappNumber={companyInfo.whatsappNumber} />
+              </CartProvider>
+            </ToastProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

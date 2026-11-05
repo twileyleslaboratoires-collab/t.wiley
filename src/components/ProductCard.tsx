@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { formatPriceFCFA, generateSingleProductOrderMessage, buildWhatsAppUrl } from '@/lib/whatsapp';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,7 @@ export default function ProductCard({ product, whatsappNumber }: ProductCardProp
   const router = useRouter();
   const { addItem } = useCart();
   const { showToast } = useToast();
+  const { t } = useLanguage();
 
   const handleCardClick = () => {
     router.push(`/produit/${product.slug}`);
@@ -26,7 +28,7 @@ export default function ProductCard({ product, whatsappNumber }: ProductCardProp
     e.preventDefault();
     e.stopPropagation();
     addItem(product, 1);
-    showToast(`"${product.name}" a été ajouté à votre panier !`, 'success');
+    showToast(`"${product.name}" ${t('card.added_toast', 'a été ajouté à votre panier !')}`, 'success');
   };
 
   const handleQuickWhatsApp = (e: React.MouseEvent) => {
@@ -95,20 +97,20 @@ export default function ProductCard({ product, whatsappNumber }: ProductCardProp
               type="button"
               onClick={handleAddToCart}
               className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold transition-all text-center"
-              title="Ajouter au panier"
+              title={t('card.add', 'Ajouter au panier')}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Ajouter</span>
+              <span>{t('card.add', 'Ajouter')}</span>
             </button>
 
             <button
               type="button"
               onClick={handleQuickWhatsApp}
               className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-2xs text-center"
-              title="Commander directement via WhatsApp"
+              title={t('card.order', 'Commander sur WhatsApp')}
             >
               <MessageCircle className="w-3.5 h-3.5 fill-white" />
-              <span>Commander</span>
+              <span>{t('card.order', 'Commander')}</span>
             </button>
           </div>
         </div>

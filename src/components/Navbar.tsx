@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, MessageCircle, Menu, X } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 import { CompanyInfo } from '@/types';
 
@@ -15,6 +17,7 @@ interface NavbarProps {
 export default function Navbar({ initialCompanyInfo }: NavbarProps) {
   const pathname = usePathname();
   const { totalCount, isInitialized } = useCart();
+  const { t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | undefined>(initialCompanyInfo);
 
@@ -60,11 +63,11 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
   };
 
   const navLinks = [
-    { label: 'BOUTIQUE', href: '/' },
-    { label: 'CATÉGORIES', href: '/categories' },
-    { label: 'PANIER', href: '/panier' },
-    { label: 'CONTACT', href: '/contact' },
-    { label: 'À PROPOS', href: '/a-propos' },
+    { label: t('nav.boutique', 'BOUTIQUE'), href: '/' },
+    { label: t('nav.categories', 'CATÉGORIES'), href: '/categories' },
+    { label: t('nav.panier', 'PANIER'), href: '/panier' },
+    { label: t('nav.contact', 'CONTACT'), href: '/contact' },
+    { label: t('nav.apropos', 'À PROPOS'), href: '/a-propos' },
   ];
 
   const whatsappCleanNumber = sanitizeWhatsAppNumber(companyInfo?.whatsappNumber || '2250767626468');
@@ -125,15 +128,20 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
             })}
           </nav>
 
-          {/* Actions: WhatsApp Icon & Cart Counter */}
+          {/* Actions: Language Switcher, WhatsApp Icon & Cart Counter */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher */}
+            <div className="hidden sm:block">
+              <LanguageSwitcher variant="navbar" />
+            </div>
+
             {/* Direct WhatsApp button */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm hover:shadow"
-              title="Commander ou discuter sur WhatsApp"
+              title={t('nav.whatsapp_title', 'Commander ou discuter sur WhatsApp')}
             >
               <MessageCircle className="w-4 h-4 fill-white" />
               <span className="hidden sm:inline">WhatsApp</span>
@@ -168,6 +176,12 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-2 shadow-lg animate-fade-in">
+          {/* Mobile Language Switcher bar */}
+          <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl mb-2 border border-slate-100">
+            <span className="text-xs font-bold text-slate-600">Langue / Language</span>
+            <LanguageSwitcher variant="navbar" />
+          </div>
+
           <div className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);

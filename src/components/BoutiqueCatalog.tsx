@@ -15,36 +15,10 @@ import {
   PhoneCall,
 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
-import FlagIcon from '@/components/FlagIcon';
+import ShowcaseZoomBanner from '@/components/ShowcaseZoomBanner';
+import { useLanguage } from '@/context/LanguageContext';
 import { Product, Category, CompanyInfo } from '@/types';
 import { formatPriceFCFA } from '@/lib/whatsapp';
-
-// Liste des pays africains pour le défilement des drapeaux (en commençant impérativement par la Côte d'Ivoire)
-const AFRICAN_COUNTRIES = [
-  { name: "Côte d'Ivoire", flag: '🇨🇮', code: 'ci' },
-  { name: 'Sénégal', flag: '🇸🇳', code: 'sn' },
-  { name: 'Mali', flag: '🇲🇱', code: 'ml' },
-  { name: 'Burkina Faso', flag: '🇧🇫', code: 'bf' },
-  { name: 'Guinée', flag: '🇬🇳', code: 'gn' },
-  { name: 'Ghana', flag: '🇬🇭', code: 'gh' },
-  { name: 'Togo', flag: '🇹🇬', code: 'tg' },
-  { name: 'Bénin', flag: '🇧🇯', code: 'bj' },
-  { name: 'Cameroun', flag: '🇨🇲', code: 'cm' },
-  { name: 'Gabon', flag: '🇬🇦', code: 'ga' },
-  { name: 'Congo', flag: '🇨🇬', code: 'cg' },
-  { name: 'RD Congo', flag: '🇨🇩', code: 'cd' },
-  { name: 'Niger', flag: '🇳🇪', code: 'ne' },
-  { name: 'Tchad', flag: '🇹🇩', code: 'td' },
-  { name: 'Nigéria', flag: '🇳🇬', code: 'ng' },
-  { name: 'Mauritanie', flag: '🇲🇷', code: 'mr' },
-  { name: 'Maroc', flag: '🇲🇦', code: 'ma' },
-  { name: 'Algérie', flag: '🇩🇿', code: 'dz' },
-  { name: 'Tunisie', flag: '🇹🇳', code: 'tn' },
-  { name: 'Égypte', flag: '🇪🇬', code: 'eg' },
-  { name: 'Rwanda', flag: '🇷🇼', code: 'rw' },
-  { name: 'Kenya', flag: '🇰🇪', code: 'ke' },
-  { name: 'Afrique du Sud', flag: '🇿🇦', code: 'za' },
-];
 
 interface BoutiqueCatalogProps {
   initialProducts: Product[];
@@ -57,6 +31,7 @@ export default function BoutiqueCatalog({
   categories,
   companyInfo,
 }: BoutiqueCatalogProps) {
+  const { t } = useLanguage();
   // Données dynamiques avec auto-mise à jour en temps réel
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [currentCategories, setCurrentCategories] = useState<Category[]>(categories);
@@ -180,26 +155,8 @@ export default function BoutiqueCatalog({
 
   return (
     <div className="pb-4 sm:pb-8">
-      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE VIVANTE COMPACTE ET SANS PARTIES SOMBRES INUTILES */}
+      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE VIVANTE */}
       <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center">
-        {/* DRAPEAU DE L'AMÉRIQUE EN HAUT À DROITE — COMPACT SUR MOBILE POUR NE PAS TOUCHER L'ÉCRITURE */}
-        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-6 z-20">
-          <div
-            className="inline-flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/95 backdrop-blur-md border border-slate-600/90 text-white shadow-2xl hover:scale-105 transition-all"
-            title="États-Unis d'Amérique"
-          >
-            <div className="animate-flag-wave flex items-center justify-center">
-              <div className="sm:hidden">
-                <FlagIcon code="us" size="md" />
-              </div>
-              <div className="hidden sm:block">
-                <FlagIcon code="us" size="2xl" />
-              </div>
-            </div>
-            <span className="text-xs sm:text-base font-black tracking-wider text-white">USA</span>
-          </div>
-        </div>
-
         {/* IMAGE DE FOND RÉPÉTÉE SANS AGRANDISSEMENT POUR OCCUPER NATURELLEMENT TOUT L'ESPACE ET RENDUE VIVANTE */}
         <div
           key={currentCompanyInfo.banner}
@@ -216,39 +173,28 @@ export default function BoutiqueCatalog({
         <div className="absolute inset-0 z-1 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/65" />
 
         {/* ÉCRITURES SANS CARTE DE FOND — HAUTEUR AJUSTÉE DIRECTEMENT AU NIVEAU DE L'ÉCRITURE */}
-        <div className="max-w-4xl mx-auto text-center relative z-10 w-full pt-14 pb-3.5 sm:pt-16 sm:pb-5 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto text-center relative z-10 w-full pt-12 pb-4 sm:pt-16 sm:pb-6 px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-sm border border-brand-400/50 text-brand-300 text-xs font-bold tracking-wider uppercase mb-2 shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-brand-400 animate-pulse" />
             {currentCompanyInfo.name || 'Les Laboratoires T. Wiley'}
           </div>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
-            Découvrez nos produits
+            {t('hero.title', 'Découvrez Nos Produits')}
           </h1>
           <p className="mt-2 text-sm sm:text-lg lg:text-xl text-amber-300 font-bold tracking-wide drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]">
             {currentCompanyInfo.activities || 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique'}
           </p>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-100 max-w-2xl mx-auto font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
-            Formulations certifiées, cosmétiques et solutions professionnelles répondant aux exigences professionnelles et internationales.
+            {t(
+              'hero.desc',
+              'Formulations certifiées, cosmétiques et solutions professionnelles répondant aux exigences professionnelles et internationales.'
+            )}
           </p>
         </div>
       </section>
 
-      {/* DÉFILEMENT DES DRAPEAUX DE L'AFRIQUE (RÉTABLI SANS LA PHRASE, DÉFILEMENT DIRECT ET COMPACT) */}
-      <section className="bg-slate-900 border-b border-slate-800 py-2 sm:py-2.5 overflow-hidden shadow-inner relative z-10">
-        <div className="relative w-full overflow-hidden">
-          <div className="animate-marquee flex items-center gap-2.5 sm:gap-4 py-0.5">
-            {[...AFRICAN_COUNTRIES, ...AFRICAN_COUNTRIES].map((country, idx) => (
-              <div
-                key={`${country.code}-${idx}`}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs text-slate-200 font-medium whitespace-nowrap hover:bg-slate-700 transition-colors shadow-xs"
-              >
-                <FlagIcon code={country.code} size="md" />
-                <span className="font-semibold text-slate-100">{country.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* BANNIÈRE INTERNATIONALE AVEC ZOOM AVANT SUCCESSIVE (USA, AFRIQUE, CÔTE D'IVOIRE) */}
+      <ShowcaseZoomBanner />
 
       {/* SECTION 2 : CATÉGORIES RAPIDES COMPACTES ET HARMONIEUSES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8 relative z-20 mb-10">
@@ -347,7 +293,7 @@ export default function BoutiqueCatalog({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher un produit (nom, détergent, lotion, gel, savon)..."
+                placeholder={t('catalog.search_placeholder', 'Rechercher un produit (nom, détergent, lotion, gel, savon)...')}
                 className="w-full py-2.5 pl-10 pr-9 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-500 bg-slate-50/70 focus:bg-white transition-colors"
               />
               {searchQuery && (
@@ -368,7 +314,7 @@ export default function BoutiqueCatalog({
                 onChange={(e) => handleCategorySelect(e.target.value)}
                 className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 w-full sm:w-auto"
               >
-                <option value="all">Toutes les catégories</option>
+                <option value="all">{t('catalog.all_categories', 'Toutes les catégories')}</option>
                 {currentCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -382,20 +328,20 @@ export default function BoutiqueCatalog({
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 w-full sm:w-auto"
               >
-                <option value="newest">Nouveautés</option>
-                <option value="price_asc">Prix croissant</option>
-                <option value="price_desc">Prix décroissant</option>
-                <option value="name_asc">Nom (A-Z)</option>
+                <option value="newest">{t('catalog.sort_newest', 'Nouveautés')}</option>
+                <option value="price_asc">{t('catalog.sort_price_asc', 'Prix croissant')}</option>
+                <option value="price_desc">{t('catalog.sort_price_desc', 'Prix décroissant')}</option>
+                <option value="name_asc">{t('catalog.sort_name_asc', 'Nom (A-Z)')}</option>
               </select>
 
               {(selectedCategoryId !== 'all' || searchQuery !== '' || sortBy !== 'newest') && (
                 <button
                   onClick={handleResetFilters}
                   className="px-3 py-2.5 rounded-xl border border-slate-200 text-brand-600 hover:text-brand-800 hover:bg-slate-50 text-xs font-medium inline-flex items-center gap-1.5 flex-shrink-0"
-                  title="Réinitialiser"
+                  title={t('catalog.reset_all', 'Réinitialiser')}
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Effacer</span>
+                  <span className="hidden sm:inline">{t('catalog.reset_all', 'Effacer')}</span>
                 </button>
               )}
             </div>
@@ -416,16 +362,15 @@ export default function BoutiqueCatalog({
         ) : (
           <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
             <SlidersHorizontal className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun produit ne correspond</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-1">{t('catalog.no_products', 'Aucun produit ne correspond')}</h3>
             <p className="text-sm text-slate-500 max-w-md mx-auto mb-6">
-              Modifiez vos critères de recherche ou réinitialisez les filtres pour voir tous nos
-              produits.
+              {t('catalog.try_relaxing', 'Modifiez vos critères de recherche ou réinitialisez les filtres pour voir tous nos produits.')}
             </p>
             <button
               onClick={handleResetFilters}
               className="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-xs"
             >
-              Réinitialiser les filtres
+              {t('catalog.reset_all', 'Réinitialiser les filtres')}
             </button>
           </div>
         )}
