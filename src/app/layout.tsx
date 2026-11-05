@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LiveChatWidget from '@/components/LiveChatWidget';
 import MobileNavigationGuard from '@/components/MobileNavigationGuard';
+import IntroScreen from '@/components/IntroScreen';
 import { getDatabase } from '@/lib/storage';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -85,9 +86,12 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth">
       <head>
+        <link rel="preload" href="/logo-laboratoires-t-wiley.jpg" as="image" />
+        <link rel="preload" href="/carte-afrique.jpg" as="image" />
         <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
       </head>
       <body className={`${inter.className} min-h-screen flex flex-col antialiased bg-slate-50 text-slate-800`}>
+        <IntroScreen logoUrl="/logo-laboratoires-t-wiley.jpg" />
         <ThemeProvider initialTheme={theme}>
           <LanguageProvider>
             <ToastProvider>

@@ -265,3 +265,92 @@ body {
     transform: none !important;
   }
 }
+
+/* ========================================================
+   ÉCRAN D'INTRODUCTION PLEIN ÉCRAN (INTRO SCREEN)
+   ======================================================== */
+:root {
+  --intro-zoom: 3.2;              /* Force du grand zoom sur ordinateur (~scale(3)) */
+  --intro-elem-duration: 3.3s;    /* Durée d'animation lente et fluide par élément (~3s) */
+}
+
+@media (max-width: 640px) {
+  :root {
+    --intro-zoom: 2.1;            /* Force du zoom adaptée aux mobiles (~scale(2)) */
+  }
+}
+
+@keyframes introSingleZoomSequence {
+  0% {
+    transform: scale(1);
+    z-index: 1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    filter: brightness(0.95);
+  }
+
+  /* Passage au premier plan immédiat */
+  2% {
+    z-index: 100;
+  }
+
+  /* Montée douce vers l'avant (grand zoom vers l'utilisateur) */
+  32% {
+    transform: scale(var(--intro-zoom, 3.2));
+    z-index: 100;
+    box-shadow: 0 30px 65px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(2, 106, 200, 0.6);
+    filter: brightness(1.1);
+  }
+
+  /* Maintien en grand pendant environ 1 seconde */
+  65% {
+    transform: scale(var(--intro-zoom, 3.2));
+    z-index: 100;
+    box-shadow: 0 30px 65px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(2, 106, 200, 0.6);
+    filter: brightness(1.1);
+  }
+
+  /* Retour doux et régulier à sa taille et sa place d'origine */
+  96% {
+    transform: scale(1);
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    filter: brightness(0.95);
+  }
+
+  /* Reste exactement à sa place */
+  100% {
+    transform: scale(1);
+    z-index: 1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    filter: brightness(0.95);
+  }
+}
+
+.intro-animated-card {
+  transform-origin: center center;
+  animation-name: introSingleZoomSequence;
+  animation-duration: var(--intro-elem-duration, 3.3s);
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+  will-change: transform, z-index;
+}
+
+/* Déclenchement séquentiel un par un, sans chevauchement */
+.intro-step-1 {
+  animation-delay: 0.3s;
+}
+
+.intro-step-2 {
+  animation-delay: 3.6s;
+}
+
+.intro-step-3 {
+  animation-delay: 6.9s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-animated-card {
+    animation: none !important;
+    transform: none !important;
+  }
+}

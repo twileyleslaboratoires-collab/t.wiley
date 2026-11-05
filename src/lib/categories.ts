@@ -121,3 +121,4 @@ export async function deleteLiveCategory(id: string): Promise<boolean> {
 
   return true;
 }
+
