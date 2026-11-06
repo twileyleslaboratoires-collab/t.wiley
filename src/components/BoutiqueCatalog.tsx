@@ -156,8 +156,8 @@ export default function BoutiqueCatalog({
 
   return (
     <div className="pb-4 sm:pb-8">
-      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE COMPACTE (PERMET DE VOIR LES CATÉGORIES SANS DÉROULER) */}
-      <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center min-h-[260px] sm:min-h-[300px] md:min-h-[330px]">
+      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE AJUSTÉE EXACTEMENT SUR LE REPÈRE DEMANDÉ */}
+      <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center min-h-[310px] sm:min-h-[350px] md:min-h-[385px]">
         {/* IMAGE DE FOND RÉPÉTÉE SANS AGRANDISSEMENT POUR OCCUPER NATURELLEMENT TOUT L'ESPACE ET RENDUE VIVANTE */}
         <div
           key={currentCompanyInfo.banner}
@@ -176,8 +176,8 @@ export default function BoutiqueCatalog({
         {/* ANIMATION 3D DES CARTES EN VERRE ÉCLATANTES (USA, AFRIQUE, CÔTE D'IVOIRE) */}
         <HeroGlassMapAnimation />
 
-        {/* ÉCRITURES SANS CARTE DE FOND — BANNIÈRE BIEN PROPORTIONNÉE SANS SOUFFRIR DE SURDIMENSIONNEMENT */}
-        <div className="max-w-3xl mx-auto text-center relative z-10 w-full pt-8 pb-7 sm:pt-11 sm:pb-9 px-4 sm:px-6">
+        {/* ÉCRITURES SANS CARTE DE FOND — HAUTEUR AJUSTÉE AU MILLIMÈTRE */}
+        <div className="max-w-3xl mx-auto text-center relative z-10 w-full pt-11 pb-10 sm:pt-14 sm:pb-12 px-4 sm:px-6">
           <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-slate-900/85 backdrop-blur-sm border border-brand-400/50 text-brand-300 text-[11px] sm:text-xs font-bold tracking-wider uppercase mb-2 shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-brand-400 animate-pulse" />
             {currentCompanyInfo.name || 'Les Laboratoires T. Wiley'}
@@ -185,7 +185,7 @@ export default function BoutiqueCatalog({
           <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
             {t('hero.title', 'Découvrez Nos Produits')}
           </h1>
-          <p className="mt-1.5 text-xs sm:text-base font-bold text-amber-300 tracking-wide drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]">
+          <p className="mt-2 text-xs sm:text-base font-bold text-amber-300 tracking-wide drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]">
             {currentCompanyInfo.activities || 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique'}
           </p>
           <p className="mt-1 text-[11px] sm:text-xs md:text-sm text-slate-100 max-w-xl mx-auto font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
