@@ -191,20 +191,62 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    // Préchargement discret de Google Translate dès le démarrage
-    loadGoogleTranslateScript();
+  const clearGoogleTranslateCookies = () => {
+    if (typeof document === 'undefined') return;
+    const hostname = window.location.hostname;
+    document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'googtrans=; path=/; domain=' + hostname + '; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'googtrans=/fr/fr; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'googtrans=/fr/en; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'googtrans=/fr/en; path=/; domain=' + hostname + '; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+  };
 
-    // Initialisation depuis localStorage ou cookie
+  useEffect(() => {
+    // Nettoyer d'anciens résidus localStorage globaux pour garantir l'isolation stricte par utilisateur / session
     try {
-      const saved = localStorage.getItem('twiley_language') as Language | null;
-      if (saved === 'fr' || saved === 'en') {
-        setLanguageState(saved);
-        applyDocumentLanguage(saved);
+      localStorage.removeItem('twiley_language');
+    } catch {
+      // Ignorer
+    }
+
+    // Vérification de la langue de CET utilisateur uniquement (isolé par sessionStorage)
+    try {
+      const sessionLang = sessionStorage.getItem('twiley_language') as Language | null;
+      if (sessionLang === 'en') {
+        setLanguageState('en');
+        applyDocumentLanguage('en');
+      } else {
+        // Par défaut strict : Français (fr) pour tout nouvel utilisateur ou nouvel onglet
+        setLanguageState('fr');
+        clearGoogleTranslateCookies();
       }
     } catch {
-      // Ignorer si localStorage non disponible
+      setLanguageState('fr');
     }
+
+    // Réalignement lors du focus de l'onglet : chaque utilisateur/onglet garde SA propre langue
+    const handleTabFocus = () => {
+      try {
+        const sessionLang = sessionStorage.getItem('twiley_language') as Language | null;
+        if (sessionLang === 'en') {
+          if (language !== 'en') {
+            setLanguageState('en');
+            applyDocumentLanguage('en');
+          }
+        } else {
+          if (language !== 'fr') {
+            setLanguageState('fr');
+            clearGoogleTranslateCookies();
+            triggerGoogleTranslation('fr');
+          }
+        }
+      } catch {
+        // Ignorer
+      }
+    };
+
+    window.addEventListener('focus', handleTabFocus);
+    return () => window.removeEventListener('focus', handleTabFocus);
   }, []);
 
   const loadGoogleTranslateScript = () => {
@@ -264,12 +306,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       document.documentElement.lang = lang;
       if (lang === 'en') {
         document.cookie = 'googtrans=/fr/en; path=/';
-        document.cookie = 'googtrans=/fr/en; path=/; domain=' + window.location.hostname;
         loadGoogleTranslateScript();
         triggerGoogleTranslation('en');
       } else {
-        document.cookie = 'googtrans=/fr/fr; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
-        document.cookie = 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
+        clearGoogleTranslateCookies();
         triggerGoogleTranslation('fr');
       }
     }
@@ -278,7 +318,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     try {
-      localStorage.setItem('twiley_language', lang);
+      sessionStorage.setItem('twiley_language', lang);
+      localStorage.removeItem('twiley_language');
     } catch {
       // Ignorer
     }
