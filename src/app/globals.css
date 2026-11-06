@@ -354,3 +354,27 @@ body {
     transform: none !important;
   }
 }
+
+/* ========================================================
+   BANDEAU DÉFILANT CONTINU DU TEXTE DE PRÉSENTATION
+   ======================================================== */
+@keyframes marqueeContinuousScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marqueeContinuousScroll 40s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-track:hover {
+  animation-play-state: paused;
+}
+

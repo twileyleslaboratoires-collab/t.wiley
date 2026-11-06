@@ -9,7 +9,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LiveChatWidget from '@/components/LiveChatWidget';
 import MobileNavigationGuard from '@/components/MobileNavigationGuard';
-import IntroScreen from '@/components/IntroScreen';
 import { getDatabase } from '@/lib/storage';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -91,7 +90,6 @@ export default function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
       </head>
       <body className={`${inter.className} min-h-screen flex flex-col antialiased bg-slate-50 text-slate-800`}>
-        <IntroScreen logoUrl="/logo-laboratoires-t-wiley.jpg" />
         <ThemeProvider initialTheme={theme}>
           <LanguageProvider>
             <ToastProvider>
