@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import ShowcaseZoomBanner from '@/components/ShowcaseZoomBanner';
+import HeroGlassMapAnimation from '@/components/HeroGlassMapAnimation';
 import { useLanguage } from '@/context/LanguageContext';
 import { Product, Category, CompanyInfo } from '@/types';
 import { formatPriceFCFA } from '@/lib/whatsapp';
@@ -171,6 +172,9 @@ export default function BoutiqueCatalog({
 
         {/* Voile doux dégradé garantissant le contraste optimal tout en maintenant l'image bien visible */}
         <div className="absolute inset-0 z-1 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-slate-950/65" />
+
+        {/* ANIMATION 3D DES CARTES EN VERRE ÉCLATANTES (USA, AFRIQUE, CÔTE D'IVOIRE) */}
+        <HeroGlassMapAnimation />
 
         {/* ÉCRITURES SANS CARTE DE FOND — HAUTEUR AJUSTÉE DIRECTEMENT AU NIVEAU DE L'ÉCRITURE */}
         <div className="max-w-4xl mx-auto text-center relative z-10 w-full pt-12 pb-4 sm:pt-16 sm:pb-6 px-4 sm:px-6">
