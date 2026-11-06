@@ -156,8 +156,8 @@ export default function BoutiqueCatalog({
 
   return (
     <div className="pb-4 sm:pb-8">
-      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE VIVANTE (AGRANDIE EN HAUTEUR) */}
-      <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center min-h-[420px] sm:min-h-[500px] md:min-h-[560px] lg:min-h-[600px]">
+      {/* SECTION 1 : INTRODUCTION COMMERCIALE & BANNIÈRE COMPACTE (PERMET DE VOIR LES CATÉGORIES SANS DÉROULER) */}
+      <section className="relative overflow-hidden border-b border-slate-800 flex items-center justify-center min-h-[260px] sm:min-h-[300px] md:min-h-[330px]">
         {/* IMAGE DE FOND RÉPÉTÉE SANS AGRANDISSEMENT POUR OCCUPER NATURELLEMENT TOUT L'ESPACE ET RENDUE VIVANTE */}
         <div
           key={currentCompanyInfo.banner}
@@ -176,19 +176,19 @@ export default function BoutiqueCatalog({
         {/* ANIMATION 3D DES CARTES EN VERRE ÉCLATANTES (USA, AFRIQUE, CÔTE D'IVOIRE) */}
         <HeroGlassMapAnimation />
 
-        {/* ÉCRITURES SANS CARTE DE FOND — BANNIÈRE AGRANDIE AVEC RESPIRATION NATURELLE */}
-        <div className="max-w-4xl mx-auto text-center relative z-10 w-full pt-16 pb-16 sm:pt-24 sm:pb-24 lg:pt-28 lg:pb-28 px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900/85 backdrop-blur-sm border border-brand-400/50 text-brand-300 text-xs font-bold tracking-wider uppercase mb-3 shadow-lg">
+        {/* ÉCRITURES SANS CARTE DE FOND — BANNIÈRE BIEN PROPORTIONNÉE SANS SOUFFRIR DE SURDIMENSIONNEMENT */}
+        <div className="max-w-3xl mx-auto text-center relative z-10 w-full pt-8 pb-7 sm:pt-11 sm:pb-9 px-4 sm:px-6">
+          <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-slate-900/85 backdrop-blur-sm border border-brand-400/50 text-brand-300 text-[11px] sm:text-xs font-bold tracking-wider uppercase mb-2 shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-brand-400 animate-pulse" />
             {currentCompanyInfo.name || 'Les Laboratoires T. Wiley'}
           </div>
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+          <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
             {t('hero.title', 'Découvrez Nos Produits')}
           </h1>
-          <p className="mt-3 text-sm sm:text-lg lg:text-xl text-amber-300 font-bold tracking-wide drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]">
+          <p className="mt-1.5 text-xs sm:text-base font-bold text-amber-300 tracking-wide drop-shadow-[0_3px_10px_rgba(0,0,0,0.95)]">
             {currentCompanyInfo.activities || 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique'}
           </p>
-          <p className="mt-2 text-xs sm:text-sm text-slate-100 max-w-2xl mx-auto font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
+          <p className="mt-1 text-[11px] sm:text-xs md:text-sm text-slate-100 max-w-xl mx-auto font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)]">
             {t(
               'hero.desc',
               'Formulations certifiées, cosmétiques et solutions professionnelles répondant aux exigences professionnelles et internationales.'
@@ -200,8 +200,8 @@ export default function BoutiqueCatalog({
       {/* BANNIÈRE AVEC DRAPEAUX FIXES À GAUCHE ET TEXTE DE PRÉSENTATION DÉFILANT EN BOUCLE */}
       <ShowcaseZoomBanner />
 
-      {/* SECTION 2 : CATÉGORIES RAPIDES RECULEES AVEC ESPACEMENT GÉNÉREUX */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-16 relative z-20 mb-12 sm:mb-16">
+      {/* SECTION 2 : CATÉGORIES RAPIDES DIRECTEMENT VISIBLES DÈS L'ARRIVÉE SANS DÉROULER LA PAGE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-5 relative z-20 mb-10 sm:mb-14">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {quickCategories.map((cat) => {
             const isSelected = selectedCategoryId === cat.id;

@@ -370,7 +370,7 @@ body {
 .animate-marquee-track {
   display: inline-flex;
   white-space: nowrap;
-  animation: marqueeContinuousScroll 40s linear infinite;
+  animation: marqueeContinuousScroll 80s linear infinite;
   will-change: transform;
 }
 
