@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import LiveChatWidget from '@/components/LiveChatWidget';
 import MobileNavigationGuard from '@/components/MobileNavigationGuard';
 import { getDatabase } from '@/lib/storage';
+import { getLiveCompanyInfo } from '@/lib/company';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,8 +18,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const db = getDatabase();
-  const info = db.companyInfo;
+  const info = await getLiveCompanyInfo();
 
   return {
     title: {
@@ -59,13 +59,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const db = getDatabase();
-  const companyInfo = db.companyInfo;
+  const [companyInfo, db] = await Promise.all([
+    getLiveCompanyInfo(),
+    Promise.resolve(getDatabase()),
+  ]);
   const theme = db.themeSettings || {
     primaryColor: '#026ac8',
     secondaryColor: '#0f172a',

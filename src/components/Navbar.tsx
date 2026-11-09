@@ -28,6 +28,16 @@ export default function Navbar({ initialCompanyInfo }: NavbarProps) {
         .then((data) => setCompanyInfo(data))
         .catch((err) => console.error('Erreur chargement info entreprise:', err));
     }
+
+    const handleUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent<CompanyInfo>;
+      if (customEvent.detail) {
+        setCompanyInfo(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('company-info-updated', handleUpdated);
+    return () => window.removeEventListener('company-info-updated', handleUpdated);
   }, [companyInfo]);
 
   // Interception du bouton retour du téléphone pour fermer le menu mobile sans quitter le site

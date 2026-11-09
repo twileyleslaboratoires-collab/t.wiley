@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
-import { getDatabase, saveDatabase } from '@/lib/storage';
+import { getLiveCompanyInfo, updateLiveCompanyInfo } from '@/lib/company';
 import { isUserAdmin } from '@/lib/auth';
-import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
-  const db = getDatabase();
-  return NextResponse.json(db.companyInfo);
+  const info = await getLiveCompanyInfo();
+  return NextResponse.json(info);
 }
 
 export async function PUT(request: Request) {
@@ -18,22 +17,8 @@ export async function PUT(request: Request) {
 
   try {
     const updatedInfo = await request.json();
-    const db = getDatabase();
-
-    // Nettoyage et formatage du numéro WhatsApp
-    if (updatedInfo.whatsappNumber) {
-      updatedInfo.whatsappNumber = sanitizeWhatsAppNumber(updatedInfo.whatsappNumber);
-    }
-
-    db.companyInfo = {
-      ...db.companyInfo,
-      ...updatedInfo,
-    };
-
-    saveDatabase(db);
-    revalidatePath('/', 'layout');
-    revalidatePath('/a-propos');
-    return NextResponse.json({ success: true, companyInfo: db.companyInfo });
+    const saved = await updateLiveCompanyInfo(updatedInfo);
+    return NextResponse.json({ success: true, companyInfo: saved });
   } catch (error) {
     return NextResponse.json(
       { error: 'Erreur lors de la mise à jour des informations.' },

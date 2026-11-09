@@ -334,23 +334,25 @@ export function ensureDatabase(): DatabaseSchema {
     }
     const parsed = JSON.parse(fileContent);
 
-    // Fusion avec les nouvelles informations officielles
+    // Fusion avec les informations sauvegardées
     const info = parsed.companyInfo || {};
     const mergedCompanyInfo: CompanyInfo = {
       ...INITIAL_COMPANY_INFO,
       ...info,
-      name: 'Les Laboratoires T. Wiley',
-      logo: info.logo || '/logo-laboratoires-t-wiley.jpg',
-      activities: 'Cosmétiques — Détergences hospitalières — Domestique — Mécanique',
-      phone1: info.phone1 || '07 67 62 64 68',
-      phone2: info.phone2 || '01 40 98 64 64',
-      phone3: info.phone3 || '27 31 62 41 83',
-      phoneUS: info.phoneUS || '+1 704 287 2551',
-      address: info.address || 'France 1, Feu Pacha, Bouaké, Côte d\'Ivoire',
-      city: info.city || 'Bouaké',
-      country: info.country || 'Côte d\'Ivoire',
-      whatsappNumber: info.whatsappNumber || '2250767626468',
-      email: info.email || '',
+      name: info.name || INITIAL_COMPANY_INFO.name,
+      logo: info.logo || INITIAL_COMPANY_INFO.logo,
+      activities: info.activities || INITIAL_COMPANY_INFO.activities,
+      phone1: info.phone1 || info.phone || INITIAL_COMPANY_INFO.phone1,
+      phone2: info.phone2 !== undefined ? info.phone2 : INITIAL_COMPANY_INFO.phone2,
+      phone3: info.phone3 !== undefined ? info.phone3 : INITIAL_COMPANY_INFO.phone3,
+      phoneUS: info.phoneUS !== undefined ? info.phoneUS : INITIAL_COMPANY_INFO.phoneUS,
+      address: info.address || INITIAL_COMPANY_INFO.address,
+      city: info.city || INITIAL_COMPANY_INFO.city,
+      country: info.country || INITIAL_COMPANY_INFO.country,
+      whatsappNumber: info.whatsappNumber || INITIAL_COMPANY_INFO.whatsappNumber,
+      email: info.email !== undefined ? info.email : INITIAL_COMPANY_INFO.email,
+      additionalPhones: Array.isArray(info.additionalPhones) ? info.additionalPhones : [],
+      additionalEmails: Array.isArray(info.additionalEmails) ? info.additionalEmails : [],
     };
 
     const finalData: DatabaseSchema = {

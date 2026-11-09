@@ -8,7 +8,7 @@ import {
   Clock,
   Globe,
 } from 'lucide-react';
-import { getDatabase } from '@/lib/storage';
+import { getLiveCompanyInfo } from '@/lib/company';
 import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 import ContactFormClient from '@/components/ContactFormClient';
 
@@ -21,10 +21,23 @@ export const metadata: Metadata = {
     'Prenez contact avec Les Laboratoires T. Wiley à Bouaké, Côte d’Ivoire, pour vos commandes de cosmétiques, détergences hospitalières, domestique et mécanique.',
 };
 
-export default function ContactPage() {
-  const db = getDatabase();
-  const info = db.companyInfo;
+export default async function ContactPage() {
+  const info = await getLiveCompanyInfo();
   const whatsappClean = sanitizeWhatsAppNumber(info.whatsappNumber || '2250767626468');
+
+  // Tous les téléphones Côte d'Ivoire configurés
+  const ciPhones: string[] = [
+    info.phone1,
+    info.phone2,
+    info.phone3,
+    ...(info.additionalPhones || []),
+  ].filter((p): p is string => typeof p === 'string' && p.trim().length > 0);
+
+  // Toutes les adresses emails configurées
+  const emails: string[] = [
+    info.email,
+    ...(info.additionalEmails || []),
+  ].filter((e): e is string => typeof e === 'string' && e.trim().length > 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -74,93 +87,103 @@ export default function ContactPage() {
             {/* Liste coordonnées */}
             <div className="space-y-4 text-xs sm:text-sm text-slate-600">
               {/* Adresse */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="block text-xs font-bold text-slate-400 uppercase">Adresse</span>
-                  <span className="text-slate-900 font-medium">{info.address}</span>
-                  <span className="block text-[11px] text-slate-500">{info.city}, {info.country}</span>
-                </div>
-              </div>
-
-              {/* Téléphones Côte d'Ivoire */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
-                  <Phone className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="block text-xs font-bold text-slate-400 uppercase">
-                    Téléphones Côte d'Ivoire
-                  </span>
-                  <div className="flex flex-col gap-1 mt-0.5">
-                    <a href="tel:0767626468" className="text-slate-900 font-semibold hover:text-brand-600">
-                      {info.phone1 || '07 67 62 64 68'}
-                    </a>
-                    <a href="tel:0140986464" className="text-slate-900 font-semibold hover:text-brand-600">
-                      {info.phone2 || '01 40 98 64 64'}
-                    </a>
-                    <a href="tel:2731624183" className="text-slate-900 font-semibold hover:text-brand-600">
-                      {info.phone3 || '27 31 62 41 83'}
-                    </a>
-                    {info.additionalPhones && info.additionalPhones.filter(Boolean).map((p, i) => (
-                      <a key={i} href={`tel:${p.replace(/\s+/g, '')}`} className="text-slate-900 font-semibold hover:text-brand-600">
-                        {p}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Téléphone États-Unis */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
-                  <Globe className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="block text-xs font-bold text-slate-400 uppercase">
-                    Téléphone États-Unis
-                  </span>
-                  <a
-                    href="tel:+17042872551"
-                    className="text-slate-900 font-semibold hover:text-brand-600"
-                  >
-                    {info.phoneUS || '+1 704 287 2551'}
-                  </a>
-                </div>
-              </div>
-
-              {/* Email (uniquement si renseigné par l'admin) */}
-              {info.email && (
+              {info.address && (
                 <div className="flex items-start gap-3.5">
                   <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
-                    <Mail className="w-4 h-4" />
+                    <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="block text-xs font-bold text-slate-400 uppercase">Email</span>
+                    <span className="block text-xs font-bold text-slate-400 uppercase">Adresse</span>
+                    <span className="text-slate-900 font-medium">{info.address}</span>
+                    <span className="block text-[11px] text-slate-500">{info.city}, {info.country}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Téléphones Côte d'Ivoire */}
+              {ciPhones.length > 0 && (
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-400 uppercase">
+                      Téléphones Côte d'Ivoire
+                    </span>
+                    <div className="flex flex-col gap-1.5 mt-1">
+                      {ciPhones.map((ph, idx) => (
+                        <a
+                          key={idx}
+                          href={`tel:${ph.replace(/\s+/g, '')}`}
+                          className="text-slate-900 font-semibold hover:text-brand-600 transition-colors"
+                        >
+                          {ph}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Téléphone États-Unis */}
+              {info.phoneUS && (
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-400 uppercase">
+                      Téléphone États-Unis
+                    </span>
                     <a
-                      href={`mailto:${info.email}`}
-                      className="text-slate-900 font-semibold hover:text-brand-600"
+                      href={`tel:${info.phoneUS.replace(/\s+/g, '')}`}
+                      className="text-slate-900 font-semibold hover:text-brand-600 transition-colors"
                     >
-                      {info.email}
+                      {info.phoneUS}
                     </a>
                   </div>
                 </div>
               )}
 
+              {/* Adresses Email */}
+              {emails.length > 0 && (
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-400 uppercase">
+                      {emails.length > 1 ? 'Adresses Email' : 'Email'}
+                    </span>
+                    <div className="flex flex-col gap-1 mt-1">
+                      {emails.map((em, idx) => (
+                        <a
+                          key={idx}
+                          href={`mailto:${em}`}
+                          className="text-slate-900 font-semibold hover:text-brand-600 transition-colors"
+                        >
+                          {em}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Horaires */}
-              <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
-                  <Clock className="w-4 h-4" />
+              {info.openingHours && (
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 flex-shrink-0 mt-0.5">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-slate-400 uppercase">
+                      Horaires d'ouverture
+                    </span>
+                    <span className="text-slate-900 font-medium">{info.openingHours}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="block text-xs font-bold text-slate-400 uppercase">
-                    Horaires d'ouverture
-                  </span>
-                  <span className="text-slate-900 font-medium">{info.openingHours}</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

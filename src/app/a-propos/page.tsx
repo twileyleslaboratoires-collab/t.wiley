@@ -15,6 +15,7 @@ import {
   Award,
 } from 'lucide-react';
 import { getDatabase } from '@/lib/storage';
+import { getLiveCompanyInfo } from '@/lib/company';
 import { sanitizeWhatsAppNumber } from '@/lib/whatsapp';
 import PartnerImageSlideshow from '@/components/PartnerImageSlideshow';
 
@@ -27,9 +28,11 @@ export const metadata: Metadata = {
     'Découvrez l’histoire, les missions, la vision et les engagements de notre société pour l’hygiène professionnelle.',
 };
 
-export default function AboutPage() {
-  const db = getDatabase();
-  const info = db.companyInfo;
+export default async function AboutPage() {
+  const [info, db] = await Promise.all([
+    getLiveCompanyInfo(),
+    Promise.resolve(getDatabase()),
+  ]);
   const partners = (db.partners || []).filter((p) => p.isPublished !== false);
   const customSections = (db.aboutSections || [])
     .filter((s) => s.isPublished)

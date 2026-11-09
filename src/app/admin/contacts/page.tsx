@@ -54,7 +54,11 @@ export default function AdminContactsPage() {
       });
 
       if (res.ok) {
+        const data = await res.json();
         showToast('Toutes les coordonnées ont été enregistrées avec succès !', 'success');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('company-info-updated', { detail: data.companyInfo || info }));
+        }
       } else {
         showToast('Erreur lors de la sauvegarde.', 'error');
       }

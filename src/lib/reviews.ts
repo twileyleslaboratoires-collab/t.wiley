@@ -260,3 +260,4 @@ export function getProductRatingSummary(reviews: ProductReview[]): {
     breakdown,
   };
 }
+

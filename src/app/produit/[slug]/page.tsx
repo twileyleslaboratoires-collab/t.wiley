@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getDatabase } from '@/lib/storage';
+import { getLiveCompanyInfo } from '@/lib/company';
 import { getLiveProductBySlugOrId, getLiveProducts } from '@/lib/products';
 import ProductDetailClient from '@/components/ProductDetailClient';
 
@@ -55,7 +56,10 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
-  const allProducts = await getLiveProducts();
+  const [allProducts, liveCompanyInfo] = await Promise.all([
+    getLiveProducts(),
+    getLiveCompanyInfo(),
+  ]);
   const db = getDatabase();
 
   // 2. Produits de la même catégorie (hors produit courant)
@@ -101,7 +105,7 @@ export default async function ProductDetailPage({ params }: Props) {
         product={product}
         sameCategoryProducts={sameCategoryProducts}
         similarProducts={similarProducts}
-        companyInfo={db.companyInfo}
+        companyInfo={liveCompanyInfo}
       />
     </>
   );
