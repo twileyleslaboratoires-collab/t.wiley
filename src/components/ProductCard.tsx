@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag, MessageCircle } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Star } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPriceFCFA, generateSingleProductOrderMessage, buildWhatsAppUrl } from '@/lib/whatsapp';
 import { useCart } from '@/context/CartContext';
@@ -72,8 +72,12 @@ export default function ProductCard({ product, whatsappNumber }: ProductCardProp
       {/* Product Info (hauteur optimisée et compacte) */}
       <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
-          <div className="text-[11px] font-medium text-slate-500 truncate mb-1">
-            {product.packaging}
+          <div className="flex items-center justify-between gap-1 text-[11px] font-medium text-slate-500 mb-1">
+            <span className="truncate">{product.packaging}</span>
+            <span className="inline-flex items-center gap-0.5 text-amber-700 font-bold bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded text-[10px] shrink-0">
+              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+              <span>5.0</span>
+            </span>
           </div>
           <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug line-clamp-1 hover:text-brand-600 transition-colors" title={product.name}>
             {product.name}

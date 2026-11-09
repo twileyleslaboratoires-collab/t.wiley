@@ -147,6 +147,19 @@ export interface ChatConversation {
   messages: ChatMessage[];
 }
 
+export interface ProductReview {
+  id: string;
+  productId: string;
+  authorName: string;
+  rating: number; // 1 to 5
+  comment: string;
+  city?: string;
+  isVerified?: boolean;
+  isPublished?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface DatabaseSchema {
   products: Product[];
   categories: Category[];
@@ -156,4 +169,5 @@ export interface DatabaseSchema {
   themeSettings: ThemeSettings;
   adminCredentials?: AdminCredentials;
   chatConversations?: ChatConversation[];
+  reviews?: ProductReview[];
 }

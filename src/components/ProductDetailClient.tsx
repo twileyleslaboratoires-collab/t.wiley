@@ -31,6 +31,8 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { useLanguage } from '@/context/LanguageContext';
 import ProductCard from '@/components/ProductCard';
+import ProductReviewsSection from '@/components/ProductReviewsSection';
+import { Star } from 'lucide-react';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -377,6 +379,13 @@ export default function ProductDetailClient({
               <span className="text-xs font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-3 py-1 rounded-lg">
                 {product.categoryName}
               </span>
+              <a
+                href="#avis-produit"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 px-2.5 py-1 rounded-lg transition-colors shadow-2xs"
+              >
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                <span>Avis clients</span>
+              </a>
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
@@ -540,6 +549,9 @@ export default function ProductDetailClient({
           </div>
         </div>
       </div>
+
+      {/* SECTION : AVIS ET NOTATIONS CLIENTS */}
+      <ProductReviewsSection productId={product.id} productName={product.name} />
 
       {/* 1. SECTION : PRODUITS DE LA MÊME CATÉGORIE */}
       {sameCategoryProducts.length > 0 && (
